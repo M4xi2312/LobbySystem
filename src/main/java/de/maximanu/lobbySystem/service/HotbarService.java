@@ -3,8 +3,11 @@ package de.maximanu.lobbySystem.service;
 import de.maximanu.lobbySystem.LobbySystem;
 import de.maximanu.lobbySystem.util.ItemFactory;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
 
@@ -12,6 +15,7 @@ public class HotbarService {
 
     private final LobbySystem plugin;
     private final MessageService messageService;
+    private final NamespacedKey hotbarKey;
     private String infoName;
     private List<String> infoLore;
     private String selectorName;
@@ -34,6 +38,7 @@ public class HotbarService {
     public HotbarService(LobbySystem plugin) {
         this.plugin = plugin;
         this.messageService = plugin.getMessageService();
+        this.hotbarKey = new NamespacedKey(plugin, "hotbar_item");
         reload();
     }
 
@@ -62,8 +67,8 @@ public class HotbarService {
 
     public void giveHotbarItems(Player player) {
         clearHotbarItems(player);
-        setHotbarItem(player, infoSlot, ItemFactory.createNamedItem(infoMaterial, infoName, infoLore));
-        setHotbarItem(player, selectorSlot, ItemFactory.createNamedItem(selectorMaterial, selectorName, selectorLore));
+        setHotbarItem(player, infoSlot, tagItem(ItemFactory.createNamedItem(infoMaterial, infoName, infoLore), "info"));
+        setHotbarItem(player, selectorSlot, tagItem(ItemFactory.createNamedItem(selectorMaterial, selectorName, selectorLore), "selector"));
         updatePlayerHiderItem(player);
     }
 
@@ -85,7 +90,15 @@ public class HotbarService {
                 lore = hiderLoreShown;
             }
         }
-        setHotbarItem(player, hiderSlot, ItemFactory.createNamedItem(hiderMaterial, name, lore));
+        setHotbarItem(player, hiderSlot, tagItem(ItemFactory.createNamedItem(hiderMaterial, name, lore), "hider"));
+    }
+
+    public void removeHotbarItems(Player player) {
+        for (int slot = 0; slot < player.getInventory().getSize(); slot++) {
+            ItemStack item = player.getInventory().getItem(slot);
+            if (!isTaggedHotbarItem(item)) continue;
+            player.getInventory().setItem(slot, null);
+        }
     }
 
     public boolean isInfoItemName(String name) {
@@ -102,6 +115,24 @@ public class HotbarService {
 
     public boolean isHotbarItemName(String name) {
         return isInfoItemName(name) || isSelectorItemName(name) || isHiderItemName(name);
+    }
+
+    public boolean isHotbarItem(ItemStack item) {
+        return getHotbarType(item) != null;
+    }
+
+    public String getHotbarType(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return null;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return null;
+        String value = meta.getPersistentDataContainer().get(hotbarKey, PersistentDataType.STRING);
+        if (value != null) return value;
+        String name = ItemFactory.safeName(item);
+        if (name == null) return null;
+        if (isInfoItemName(name)) return "info";
+        if (isSelectorItemName(name)) return "selector";
+        if (isHiderItemName(name)) return "hider";
+        return null;
     }
 
     public boolean isHotbarSlot(int slot) {
@@ -121,5 +152,20 @@ public class HotbarService {
         if (infoSlot >= 0 && infoSlot <= 8) player.getInventory().setItem(infoSlot, null);
         if (selectorSlot >= 0 && selectorSlot <= 8) player.getInventory().setItem(selectorSlot, null);
         if (hiderSlot >= 0 && hiderSlot <= 8) player.getInventory().setItem(hiderSlot, null);
+    }
+
+    private boolean isTaggedHotbarItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return false;
+        return meta.getPersistentDataContainer().has(hotbarKey, PersistentDataType.STRING);
+    }
+
+    private ItemStack tagItem(ItemStack item, String type) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return item;
+        meta.getPersistentDataContainer().set(hotbarKey, PersistentDataType.STRING, type);
+        item.setItemMeta(meta);
+        return item;
     }
 }

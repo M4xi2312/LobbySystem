@@ -33,6 +33,7 @@ public class BuildCommand implements CommandExecutor {
         String msg = now
                 ? plugin.getMessageService().get("info.build-enabled", "&aBuild mode enabled.")
                 : plugin.getMessageService().get("info.build-disabled", "&cBuild mode disabled.");
+        plugin.getPlayerListener().refreshPlayer(player);
         player.sendMessage(msg);
         return true;
     }

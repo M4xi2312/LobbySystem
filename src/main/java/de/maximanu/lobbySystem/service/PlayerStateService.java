@@ -1,20 +1,15 @@
 package de.maximanu.lobbySystem.service;
 
-import de.maximanu.lobbySystem.LobbySystem;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class PlayerStateService {
 
-    private final LobbySystem plugin;
     private final Map<UUID, Integer> hiderStates = new HashMap<>();
     private final Map<UUID, Boolean> buildModes = new HashMap<>();
 
-    public PlayerStateService(LobbySystem plugin) {
-        this.plugin = plugin;
-    }
+    public PlayerStateService() {}
 
     public int getPlayerHiderState(UUID uuid) {
         return hiderStates.getOrDefault(uuid, 0);
@@ -30,5 +25,10 @@ public class PlayerStateService {
 
     public void setBuildMode(UUID uuid, boolean enabled) {
         buildModes.put(uuid, enabled);
+    }
+
+    public void clearPlayer(UUID uuid) {
+        hiderStates.remove(uuid);
+        buildModes.remove(uuid);
     }
 }

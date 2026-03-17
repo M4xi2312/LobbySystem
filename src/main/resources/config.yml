@@ -21,6 +21,11 @@ lobby:
         entity-interact: true
         inventory: true
         item-drop: true
+    double-jump:
+        enabled: true
+        apply-to-all-worlds: false
+        forward: 1.2
+        up: 0.9
 
 hotbar:
     enabled: true
@@ -65,3 +70,25 @@ links:
     website: 'https://example.com'
     discord: 'https://discord.gg/example'
     store: 'https://store.example.com'
+
+sounds:
+    double-jump:
+        name: "ENTITY_FIREWORK_ROCKET_LAUNCH"
+        volume: 1.0
+        pitch: 1.1
+    selector-open:
+        name: "UI_BUTTON_CLICK"
+        volume: 0.8
+        pitch: 1.2
+    info:
+        name: "UI_BUTTON_CLICK"
+        volume: 0.8
+        pitch: 1.0
+    hider-toggle:
+        name: "UI_BUTTON_CLICK"
+        volume: 0.8
+        pitch: 0.9
+    teleport:
+        name: "ENTITY_ENDERMAN_TELEPORT"
+        volume: 0.9
+        pitch: 1.0

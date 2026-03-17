@@ -8,9 +8,10 @@ import de.maximanu.lobbySystem.service.MessageService;
 import de.maximanu.lobbySystem.service.PlayerStateService;
 import de.maximanu.lobbySystem.service.SpawnService;
 import de.maximanu.lobbySystem.service.VisibilityService;
-import de.maximanu.lobbySystem.util.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,12 +23,17 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.util.UUID;
 
@@ -59,11 +65,10 @@ public class PlayerListener implements Listener {
         if (configService.isTeleportOnJoin()) {
             teleportToSpawnIfSet(p);
         }
-        if (shouldGiveHotbar(p)) {
-            hotbarService.giveHotbarItems(p);
-        }
+        updateHotbarState(p);
         visibilityService.applyVisibility(p, playerStateService.getPlayerHiderState(p.getUniqueId()));
         updateVisibilityForOthers(p);
+        updateDoubleJumpState(p);
     }
 
     @EventHandler
@@ -74,10 +79,9 @@ public class PlayerListener implements Listener {
         }
         Player p = e.getPlayer();
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (shouldGiveHotbar(p)) {
-                hotbarService.giveHotbarItems(p);
-            }
+            updateHotbarState(p);
             visibilityService.applyVisibility(p, playerStateService.getPlayerHiderState(p.getUniqueId()));
+            updateDoubleJumpState(p);
         }, 1L);
     }
 
@@ -88,8 +92,10 @@ public class PlayerListener implements Listener {
         if (!shouldProtect(p)) return;
         if (e.getCause() == EntityDamageEvent.DamageCause.VOID) {
             if (configService.isTeleportOnVoid()) {
-                teleportToSpawnIfSet(p);
-                e.setCancelled(true);
+                if (teleportToSpawnIfSet(p)) {
+                    e.setCancelled(true);
+                    return;
+                }
                 return;
             }
             if (configService.isProtectDamage()) {
@@ -114,7 +120,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         if (!shouldProtect(e.getPlayer())) return;
-        if (configService.isProtectBlockBreak() && !playerStateService.getBuildMode(e.getPlayer().getUniqueId())) {
+        if (configService.isProtectBlockBreak() && !isBuildMode(e.getPlayer())) {
             e.setCancelled(true);
         }
     }
@@ -122,7 +128,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         if (!shouldProtect(e.getPlayer())) return;
-        if (configService.isProtectBlockPlace() && !playerStateService.getBuildMode(e.getPlayer().getUniqueId())) {
+        if (configService.isProtectBlockPlace() && !isBuildMode(e.getPlayer())) {
             e.setCancelled(true);
         }
     }
@@ -137,7 +143,7 @@ public class PlayerListener implements Listener {
         boolean hotbarActive = configService.isHotbarEnabled()
                 && (configService.isHotbarAllWorlds() || inLobbyWorld);
 
-        if (protect && configService.isProtectInteract() && !playerStateService.getBuildMode(p.getUniqueId())) {
+        if (protect && configService.isProtectInteract() && !isBuildMode(p)) {
             e.setCancelled(true);
         }
 
@@ -145,22 +151,25 @@ public class PlayerListener implements Listener {
         if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
 
         ItemStack hand = p.getInventory().getItemInMainHand();
-        String itemName = ItemFactory.safeName(hand);
-        if (itemName == null) return;
+        String type = hotbarService.getHotbarType(hand);
+        if (type == null) return;
 
-        if (hotbarService.isInfoItemName(itemName)) {
+        if (type.equals("info")) {
             sendLinks(p);
-        } else if (hotbarService.isSelectorItemName(itemName)) {
+            playSound(p, configService.getSoundInfo(), configService.getSoundInfoVolume(), configService.getSoundInfoPitch());
+        } else if (type.equals("selector")) {
             serverSelectorMenu.open(p);
-        } else if (hotbarService.isHiderItemName(itemName)) {
+            playSound(p, configService.getSoundSelectorOpen(), configService.getSoundSelectorOpenVolume(), configService.getSoundSelectorOpenPitch());
+        } else if (type.equals("hider")) {
             togglePlayerHider(p);
+            playSound(p, configService.getSoundHiderToggle(), configService.getSoundHiderToggleVolume(), configService.getSoundHiderTogglePitch());
         }
     }
 
     @EventHandler
     public void onEntityInteract(PlayerInteractEntityEvent e) {
         if (!shouldProtect(e.getPlayer())) return;
-        if (configService.isProtectEntityInteract() && !playerStateService.getBuildMode(e.getPlayer().getUniqueId())) {
+        if (configService.isProtectEntityInteract() && !isBuildMode(e.getPlayer())) {
             e.setCancelled(true);
         }
     }
@@ -175,7 +184,7 @@ public class PlayerListener implements Listener {
         }
 
         if (!shouldProtect(p)) return;
-        if (configService.isProtectInventory() && !playerStateService.getBuildMode(p.getUniqueId())) {
+        if (configService.isProtectInventory() && !isBuildMode(p)) {
             e.setCancelled(true);
             return;
         }
@@ -195,7 +204,7 @@ public class PlayerListener implements Listener {
             return;
         }
         if (!shouldProtect(p)) return;
-        if (configService.isProtectInventory() && !playerStateService.getBuildMode(p.getUniqueId())) {
+        if (configService.isProtectInventory() && !isBuildMode(p)) {
             e.setCancelled(true);
             return;
         }
@@ -212,15 +221,49 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onDrop(PlayerDropItemEvent e) {
         if (!shouldProtect(e.getPlayer())) return;
-        if (configService.isProtectItemDrop() && !playerStateService.getBuildMode(e.getPlayer().getUniqueId())) {
+        if (configService.isProtectItemDrop() && !isBuildMode(e.getPlayer())) {
             e.setCancelled(true);
             return;
         }
         ItemStack dropped = e.getItemDrop().getItemStack();
-        String name = ItemFactory.safeName(dropped);
-        if (shouldHotbarLock(e.getPlayer()) && name != null && hotbarService.isHotbarItemName(name)) {
+        if (shouldHotbarLock(e.getPlayer()) && hotbarService.isHotbarItem(dropped)) {
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onToggleFlight(PlayerToggleFlightEvent e) {
+        Player p = e.getPlayer();
+        if (!shouldDoubleJump(p)) return;
+        if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) return;
+        e.setCancelled(true);
+        p.setAllowFlight(false);
+        Vector velocity = p.getLocation().getDirection().multiply(configService.getDoubleJumpForward());
+        velocity.setY(configService.getDoubleJumpUp());
+        p.setVelocity(velocity);
+        playSound(p, configService.getSoundDoubleJump(), configService.getSoundDoubleJumpVolume(), configService.getSoundDoubleJumpPitch());
+    }
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent e) {
+        Player p = e.getPlayer();
+        if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) return;
+        if (p.getAllowFlight()) return;
+        if (!p.isOnGround()) return;
+        if (!shouldDoubleJump(p)) return;
+        p.setAllowFlight(true);
+    }
+
+    @EventHandler
+    public void onWorldChange(PlayerChangedWorldEvent e) {
+        Player p = e.getPlayer();
+        updateHotbarState(p);
+        updateDoubleJumpState(p);
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        playerStateService.clearPlayer(e.getPlayer().getUniqueId());
     }
 
     private void togglePlayerHider(Player p) {
@@ -255,15 +298,17 @@ public class PlayerListener implements Listener {
         ));
     }
 
-    private void teleportToSpawnIfSet(Player p) {
+    private boolean teleportToSpawnIfSet(Player p) {
         Location spawn = spawnService.getSpawnLocation();
         if (spawn != null) {
             p.teleport(spawn);
-            return;
+            playSound(p, configService.getSoundTeleport(), configService.getSoundTeleportVolume(), configService.getSoundTeleportPitch());
+            return true;
         }
         if (p.isOp()) {
             p.sendMessage(messageService.get("errors.spawn-not-set-op", "&cSpawn is not set. Use /setspawn."));
         }
+        return false;
     }
 
     private void updateVisibilityForOthers(Player joined) {
@@ -281,11 +326,10 @@ public class PlayerListener implements Listener {
     }
 
     public void refreshPlayer(Player p) {
-        if (shouldGiveHotbar(p)) {
-            hotbarService.giveHotbarItems(p);
-        }
+        updateHotbarState(p);
         visibilityService.applyVisibility(p, playerStateService.getPlayerHiderState(p.getUniqueId()));
         updateVisibilityForOthers(p);
+        updateDoubleJumpState(p);
     }
 
     private boolean isLobbyWorld(Player p) {
@@ -300,13 +344,45 @@ public class PlayerListener implements Listener {
 
     private boolean shouldGiveHotbar(Player p) {
         return configService.isHotbarEnabled()
-                && (configService.isHotbarAllWorlds() || isLobbyWorld(p));
+                && (configService.isHotbarAllWorlds() || isLobbyWorld(p))
+                && !isBuildMode(p);
+    }
+
+    private boolean shouldDoubleJump(Player p) {
+        return configService.isDoubleJumpEnabled()
+                && (configService.isDoubleJumpAllWorlds() || isLobbyWorld(p));
+    }
+
+    private void updateHotbarState(Player p) {
+        if (shouldGiveHotbar(p)) {
+            hotbarService.giveHotbarItems(p);
+        } else {
+            hotbarService.removeHotbarItems(p);
+        }
+    }
+
+    private void updateDoubleJumpState(Player p) {
+        if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) return;
+        boolean allow = shouldDoubleJump(p);
+        if (p.getAllowFlight() != allow) {
+            p.setAllowFlight(allow);
+        }
+    }
+
+    private void playSound(Player p, Sound sound, float volume, float pitch) {
+        if (sound == null) return;
+        p.playSound(p.getLocation(), sound, volume, pitch);
     }
 
     private boolean shouldHotbarLock(Player p) {
         return configService.isHotbarEnabled()
                 && configService.isHotbarLockEnabled()
-                && (configService.isHotbarAllWorlds() || isLobbyWorld(p));
+                && (configService.isHotbarAllWorlds() || isLobbyWorld(p))
+                && !isBuildMode(p);
+    }
+
+    private boolean isBuildMode(Player p) {
+        return playerStateService.getBuildMode(p.getUniqueId());
     }
 
     private boolean isLockedHotbarInteraction(Player p, InventoryClickEvent e) {
@@ -316,19 +392,16 @@ public class PlayerListener implements Listener {
         }
 
         ItemStack current = e.getCurrentItem();
-        String currentName = ItemFactory.safeName(current);
-        if (currentName != null && hotbarService.isHotbarItemName(currentName)) return true;
+        if (hotbarService.isHotbarItem(current)) return true;
 
         ItemStack cursor = e.getCursor();
-        String cursorName = ItemFactory.safeName(cursor);
-        if (cursorName != null && hotbarService.isHotbarItemName(cursorName)) return true;
+        if (hotbarService.isHotbarItem(cursor)) return true;
 
         int hotbarButton = e.getHotbarButton();
         if (hotbarButton >= 0) {
             if (!hotbarService.isHotbarSlot(hotbarButton)) return false;
             ItemStack hotbarItem = p.getInventory().getItem(hotbarButton);
-            String hotbarName = ItemFactory.safeName(hotbarItem);
-            return hotbarName != null && hotbarService.isHotbarItemName(hotbarName);
+            return hotbarService.isHotbarItem(hotbarItem);
         }
         return false;
     }

@@ -32,7 +32,7 @@ public final class LobbySystem extends JavaPlugin {
         saveDefaultConfig();
         messageService = new MessageService(this);
         configService = new ConfigService(this, messageService);
-        playerStateService = new PlayerStateService(this);
+        playerStateService = new PlayerStateService();
         spawnService = new SpawnService(this);
         visibilityService = new VisibilityService(this);
         hotbarService = new HotbarService(this);
