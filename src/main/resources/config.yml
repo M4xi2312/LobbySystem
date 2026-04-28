@@ -1,0 +1,160 @@
+# =========================================================
+# LobbySystem Configuration
+# Paper 1.21.11 / Folia-ready lobby utilities
+# All lobby mechanics only run in the configured lobby world.
+# MiniMessage is supported in messages.yml and server names/lore.
+# =========================================================
+
+# Spawn and command settings for the lobby.
+spawn:
+  command-enabled: true
+  set-command-enabled: true
+  world: world_lobby
+  x: -0.5
+  y: 90.0
+  z: -0.5
+  yaw: -0.6054186
+  pitch: -0.21099684
+
+# This world is the scope for all lobby-only features.
+lobby:
+  world: world_lobby
+  teleport-on-join: true
+  teleport-on-respawn: true
+  teleport-on-void: true
+
+  protect:
+    enabled: true
+    damage: true
+    hunger: true
+    block-break: true
+    block-place: true
+    interact: true
+    entity-interact: true
+    inventory: true
+    item-drop: true
+
+  double-jump:
+    enabled: true
+    forward: 1.15
+    up: 0.82
+    cooldown-ticks: 30
+    use-xp-bar: true
+
+# Build mode is stored per player and only applies inside the lobby world.
+build-mode:
+  enabled: true
+  allow-flight: false
+  disable-double-jump: true
+  reset-on-quit: true
+
+# Custom lobby items are only given in the lobby world while build mode is off.
+hotbar:
+  enabled: true
+  lock: true
+
+  info:
+    enabled: true
+    slot: 0
+    material: BOOK
+
+  selector:
+    enabled: true
+    slot: 4
+    material: COMPASS
+
+  hider:
+    enabled: true
+    slot: 8
+    material: PLAYER_HEAD
+
+# Message delivery for feature feedback.
+feedback:
+  # Allowed values: chat, actionbar, none
+  spawn-set: chat
+  spawn-teleport: actionbar
+  build-mode: actionbar
+  visibility-toggle: none
+  selector-connect: actionbar
+
+# Selector menu layout and pagination.
+menu:
+  selector:
+    enabled: true
+    size: 27
+    layout-slots: [10, 11, 12, 14, 15, 16]
+    prev-slot: 18
+    next-slot: 26
+    fill-empty: true
+    filler-material: LIGHT_GRAY_STAINED_GLASS_PANE
+
+# Link output for the lobby info item.
+links:
+  enabled: true
+  website: "https://example.com"
+  discord: "https://discord.gg/example"
+  store: "https://store.example.com"
+
+# Backend destinations used by the selector menu.
+servers:
+  ffa:
+    name: "<gradient:#FFE082:#FFB347>FFA"
+    bungee: "ffa"
+    item: "BOW"
+    slot: 11
+    lore:
+      - "<#6E6E6E>- <#E8E8E8>Fast-paced fights with instant action"
+      - "<#6E6E6E>- <#FFD166>Click to connect"
+
+  duels:
+    name: "<gradient:#7EE8FA:#5AA9FF>Duels"
+    bungee: "duels"
+    item: "DIAMOND_SWORD"
+    slot: 15
+    lore:
+      - "<#6E6E6E>- <#E8E8E8>1v1, ranked, and quick matches"
+      - "<#6E6E6E>- <#7EE8FA>Click to connect"
+
+# Optional sound feedback for interactions and state changes.
+sounds:
+  enabled: true
+
+  double-jump:
+    name: "minecraft:entity.breeze.jump"
+    volume: 0.95
+    pitch: 1.15
+
+  double-jump-deny:
+    name: "minecraft:block.note_block.bass"
+    volume: 0.65
+    pitch: 0.8
+
+  selector-open:
+    name: "minecraft:ui.button.click"
+    volume: 0.8
+    pitch: 1.15
+
+  info:
+    name: "minecraft:item.book.page_turn"
+    volume: 0.75
+    pitch: 1.0
+
+  hider-toggle:
+    name: "minecraft:entity.experience_orb.pickup"
+    volume: 0.75
+    pitch: 1.15
+
+  teleport:
+    name: "minecraft:entity.enderman.teleport"
+    volume: 0.85
+    pitch: 1.05
+
+  build-mode-enable:
+    name: "minecraft:block.beacon.power_select"
+    volume: 0.8
+    pitch: 1.25
+
+  build-mode-disable:
+    name: "minecraft:block.beacon.deactivate"
+    volume: 0.8
+    pitch: 0.95

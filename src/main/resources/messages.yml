@@ -1,0 +1,89 @@
+# =========================================================
+# LobbySystem Messages
+# MiniMessage formatting is supported in every entry.
+# Keep chat messages descriptive and action bar messages short.
+# =========================================================
+
+usage:
+  lobbysystem: "<gradient:#8FB8FF:#D8E6FF>LobbySystem</gradient> <#7A7A7A>- <#D6D6D6>Use <#FFFFFF>/lobbysystem reload"
+
+errors:
+  only-players: "<#FF5C5C>Error <#D6D6D6>This command is only available for players."
+  lobby-world-only: "<#FF5C5C>Error <#D6D6D6>This feature only works in the configured lobby world."
+  feature-disabled: "<#FF5C5C>Error <#D6D6D6>The feature <#FFFFFF>{feature} <#D6D6D6>is disabled in config."
+  no-permission:
+    build: "<#FF5C5C>Error <#D6D6D6>You are not allowed to use build mode."
+    setspawn: "<#FF5C5C>Error <#D6D6D6>You are not allowed to set the spawn."
+    reload: "<#FF5C5C>Error <#D6D6D6>You are not allowed to reload the plugin."
+  spawn-not-set: "<#FF5C5C>Warning <#D6D6D6>No spawn has been configured yet."
+  spawn-not-set-op: "<#FF5C5C>Warning <#D6D6D6>No spawn set. <#FFFFFF>Use /setspawn."
+  teleport-failed: "<#FF5C5C>Error <#D6D6D6>Teleport failed. Please try again."
+
+info:
+  spawn-set: "<gradient:#7DFF9C:#B8FFCC>Spawn saved</gradient> <#D6D6D6>The lobby location has been updated."
+  spawn-teleport: "<gradient:#7DFF9C:#B8FFCC>Lobby</gradient> <#D6D6D6>You were teleported to spawn."
+  build-enabled: "<gradient:#FFD166:#FFB347>Build mode enabled</gradient> <#D6D6D6>You can now edit the lobby."
+  build-disabled: "<gradient:#FF8FA3:#FFB3C1>Build mode disabled</gradient> <#D6D6D6>You are back in normal lobby mode."
+  config-reloaded: "<gradient:#7EE8FA:#80FFDB>Configuration reloaded</gradient> <#D6D6D6>All values were refreshed."
+  selector-connecting: "<gradient:#FFE082:#FFB347>Connecting</gradient> <#D6D6D6>Sending you to <#FFFFFF>{server}"
+  visibility:
+    all: "<gradient:#7EE8FA:#5AA9FF>Players</gradient> <#E8E8E8>All visible"
+    ops: "<gradient:#7EE8FA:#5AA9FF>Players</gradient> <#E8E8E8>Staff only"
+    hidden: "<gradient:#7EE8FA:#5AA9FF>Players</gradient> <#E8E8E8>All hidden"
+
+actionbar:
+  spawn:
+    set: "<gradient:#7DFF9C:#B8FFCC>Spawn saved"
+    teleport: "<gradient:#7DFF9C:#B8FFCC>Teleported to spawn"
+  build-mode:
+    enabled: "<gradient:#FFD166:#FFB347>Build mode enabled"
+    disabled: "<gradient:#9E9E9E:#D6D6D6>Build mode disabled"
+  selector-connecting: "<gradient:#FFE082:#FFB347>Connecting to <#FFFFFF>{server}"
+
+links:
+  website: "<gradient:#FF8A80:#FFB199>Website</gradient> <#7A7A7A>- <#FFFFFF>{link}"
+  discord: "<gradient:#7EE8FA:#5AA9FF>Discord</gradient> <#7A7A7A>- <#FFFFFF>{link}"
+  store: "<gradient:#FFE082:#FFB347>Store</gradient> <#7A7A7A>- <#FFFFFF>{link}"
+
+hotbar:
+  info:
+    name: "<gradient:#F5F7FA:#D7DDE8>Lobby Info"
+    lore:
+      - "<#6E6E6E>- <#E8E8E8>View links and useful information"
+      - "<#6E6E6E>- <#F5F7FA>Right-click to open"
+
+  selector:
+    name: "<gradient:#FFE082:#FFB347>Server Selector"
+    lore:
+      - "<#6E6E6E>- <#E8E8E8>Choose where you want to play"
+      - "<#6E6E6E>- <#FFD166>Right-click to open"
+
+  hider:
+    name:
+      shown: "<gradient:#FF8FA3:#FFB3C1>Players <#E8E8E8>(All)"
+      ops: "<gradient:#FF8FA3:#FFB3C1>Players <#E8E8E8>(Staff Only)"
+      hidden: "<gradient:#FF8FA3:#FFB3C1>Players <#E8E8E8>(Hidden)"
+    lore:
+      shown:
+        - "<#6E6E6E>- <#E8E8E8>Hide regular players"
+      ops:
+        - "<#6E6E6E>- <#E8E8E8>Show staff only"
+      hidden:
+        - "<#6E6E6E>- <#E8E8E8>Show all players again"
+
+menu:
+  selector:
+    title: "<gradient:#FFE082:#FFB347>Server Selector"
+    prev-page: "<gradient:#CFCFCF:#F5F5F5>< Previous"
+    next-page: "<gradient:#F5F5F5:#CFCFCF>Next >"
+    page-lore:
+      - "<#6E6E6E>- <#E8E8E8>Page <#FFFFFF>{page}<#CFCFCF>/<#FFFFFF>{pages}"
+    filler-name: "<gradient:#4A4A4A:#7A7A7A>*"
+    no-servers:
+      name: "<gradient:#FF8A80:#FFB199>No servers configured"
+      lore:
+        - "<#6E6E6E>- <#E8E8E8>Add servers in config.yml"
+    invalid-layout: "<gradient:#FF8A80:#FFB199>The selector layout in config.yml is invalid."
+    item:
+      default-lore:
+        - "<#6E6E6E>- <#E8E8E8>Click to connect"
