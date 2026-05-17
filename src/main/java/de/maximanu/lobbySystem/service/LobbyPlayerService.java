@@ -94,10 +94,10 @@ public class LobbyPlayerService {
                                             .clickEvent(ClickEvent.openUrl(url));
 
          Component message = Component.text("  ")
-                                      .append(Component.text("➤ ", TextColor.color(0x6E6E6E))) // Pfeil-Symbol
+                                      .append(Component.text("➤ ", TextColor.color(0x6E6E6E)))
                                       .append(linkComponent)
-                                      .append(Component.text(": ", TextColor.color(0x6E6E6E))) // Trennzeichen
-                                      .append(Component.text(url, TextColor.color(0xAAAAAA))); // Die URL selbst, optional
+                                      .append(Component.text(": ", TextColor.color(0x6E6E6E)))
+                                      .append(Component.text(url, TextColor.color(0xAAAAAA)));
 
          player.sendMessage(message);
       });
