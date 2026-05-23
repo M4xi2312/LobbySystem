@@ -10,12 +10,10 @@ public class SpawnService {
 
    public SpawnService(LobbySystem plugin) {
       this.plugin = plugin;
-      this.reload();
    }
 
    public void saveSpawnLocation(Location loc) {
       if (loc != null && loc.getWorld() != null) {
-         // Stored lobby location
          this.plugin.getConfig().set("spawn.world", loc.getWorld().getName());
          this.plugin.getConfig().set("spawn.x", loc.getX());
          this.plugin.getConfig().set("spawn.y", loc.getY());
@@ -33,11 +31,15 @@ public class SpawnService {
    }
 
    public Location getSpawnLocation() {
+      if (this.cachedSpawnLocation == null && !this.plugin.getConfigService().getSpawnWorldName().isBlank()) {
+         this.reload();
+      }
+
       return this.cachedSpawnLocation == null ? null : this.cachedSpawnLocation.clone();
    }
 
    public void reload() {
-      String worldName = this.plugin.getConfig().getString("spawn.world", "").trim();
+      String worldName = this.plugin.getConfigService().getSpawnWorldName();
       if (worldName.isEmpty()) {
          this.cachedSpawnLocation = null;
          return;

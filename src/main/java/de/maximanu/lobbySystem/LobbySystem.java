@@ -53,6 +53,7 @@ public final class LobbySystem extends JavaPlugin {
       this.hotbarService = new HotbarService(this);
       this.serverSelectorMenu = new ServerSelectorMenu(this, this.configService);
       this.lobbyPlayerService = new LobbyPlayerService(this);
+      this.spawnService.reload();
       this.lobbyEnvironmentService.start();
 
       // Command and event registration
@@ -62,6 +63,7 @@ public final class LobbySystem extends JavaPlugin {
       this.registerCommand("lobbysystem", new LobbySystemCommand(this));
       this.playerListener = new PlayerListener(this);
       Bukkit.getPluginManager().registerEvents(this.playerListener, this);
+      this.reloadStartupStateDelayed();
       this.getLogger().info("LobbySystem enabled");
    }
 
@@ -79,8 +81,8 @@ public final class LobbySystem extends JavaPlugin {
    }
 
    public void reloadPluginConfig() {
-      this.reloadConfig();
       this.saveDefaultConfig();
+      this.reloadConfig();
       this.messageService.reload();
       this.configService.reload();
       this.spawnService.reload();
@@ -98,6 +100,13 @@ public final class LobbySystem extends JavaPlugin {
             this.getCommand(name).setTabCompleter(tabCompleter);
          }
       }
+   }
+
+   private void reloadStartupStateDelayed() {
+      this.getServer().getGlobalRegionScheduler().runDelayed(this, (task) -> {
+         this.spawnService.reload();
+         this.lobbyEnvironmentService.reload();
+      }, 1L);
    }
 
    public MessageService getMessageService() {

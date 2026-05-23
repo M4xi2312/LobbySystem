@@ -447,11 +447,11 @@ public class ConfigService {
          this.lobbyWorldName = this.spawnWorldName;
       }
 
-      this.spawnEnabled = this.readBoolean("features.spawn.enabled", true, "spawn.enabled");
+      this.spawnEnabled = this.plugin.getConfig().getBoolean("features.spawn.enabled", true);
       this.teleportOnJoin = this.plugin.getConfig().getBoolean("lobby.teleport-on-join", true);
       this.teleportOnRespawn = this.plugin.getConfig().getBoolean("lobby.teleport-on-respawn", true);
       this.teleportOnVoid = this.plugin.getConfig().getBoolean("lobby.teleport-on-void", true);
-      this.protectionEnabled = this.readBoolean("features.protection.enabled", true, "lobby.protect.enabled");
+      this.protectionEnabled = this.plugin.getConfig().getBoolean("features.protection.enabled", true);
       this.protectDamage = this.plugin.getConfig().getBoolean("lobby.protect.damage", true);
       this.protectHunger = this.plugin.getConfig().getBoolean("lobby.protect.hunger", true);
       this.protectBlockBreak = this.plugin.getConfig().getBoolean("lobby.protect.block-break", true);
@@ -472,27 +472,26 @@ public class ConfigService {
       this.protectArmorStandEdit = this.plugin.getConfig().getBoolean("lobby.protect.armor-stand-edit", true);
       this.protectItemFrameRotate = this.plugin.getConfig().getBoolean("lobby.protect.item-frame-rotate", true);
       this.protectHangingBreak = this.plugin.getConfig().getBoolean("lobby.protect.hanging-break", true);
-      this.buildModeEnabled = this.readBoolean("features.build-mode.enabled", true, "build-mode.enabled");
-      this.doubleJumpEnabled = this.readBoolean("features.double-jump.enabled", true, "lobby.double-jump.enabled");
+      this.buildModeEnabled = this.plugin.getConfig().getBoolean("features.build-mode.enabled", true);
+      this.doubleJumpEnabled = this.plugin.getConfig().getBoolean("features.double-jump.enabled", true);
       this.doubleJumpForward = this.plugin.getConfig().getDouble("lobby.double-jump.forward", 1.2D);
       this.doubleJumpUp = this.plugin.getConfig().getDouble("lobby.double-jump.up", 0.9D);
       this.doubleJumpCooldownTicks = Math.max(0, this.plugin.getConfig().getInt("lobby.double-jump.cooldown-ticks", 30));
       this.doubleJumpUseXpBar = this.plugin.getConfig().getBoolean("lobby.double-jump.use-xp-bar", true);
       this.hotbarLockEnabled = this.plugin.getConfig().getBoolean("hotbar.lock", true);
-      this.hotbarEnabled = this.readBoolean("features.hotbar.enabled", true, "hotbar.enabled");
-      this.hotbarInfoEnabled = this.readBoolean("features.hotbar.info.enabled", true, "hotbar.info.enabled");
-      this.hotbarSelectorEnabled = this.readBoolean("features.hotbar.selector.enabled", true, "hotbar.selector.enabled");
-      this.hotbarHiderEnabled = this.readBoolean("features.hotbar.hider.enabled", true, "hotbar.hider.enabled");
-      this.selectorMenuEnabled = this.readBoolean("features.selector.enabled", true, "menu.selector.enabled");
-      this.linksEnabled = this.readBoolean("features.links.enabled", true, "links.enabled");
+      this.hotbarEnabled = this.plugin.getConfig().getBoolean("features.hotbar.enabled", true);
+      this.hotbarInfoEnabled = this.plugin.getConfig().getBoolean("features.hotbar.info.enabled", true);
+      this.hotbarSelectorEnabled = this.plugin.getConfig().getBoolean("features.hotbar.selector.enabled", true);
+      this.hotbarHiderEnabled = this.plugin.getConfig().getBoolean("features.hotbar.hider.enabled", true);
+      this.selectorMenuEnabled = this.plugin.getConfig().getBoolean("features.selector.enabled", true);
+      this.linksEnabled = this.plugin.getConfig().getBoolean("features.links.enabled", true);
       this.buildModeAllowFlight = this.plugin.getConfig().getBoolean("build-mode.allow-flight", false);
       this.buildModeDisableDoubleJump = this.plugin.getConfig().getBoolean("build-mode.disable-double-jump", true);
       this.buildModeResetOnQuit = this.plugin.getConfig().getBoolean("build-mode.reset-on-quit", true);
-      this.soundsEnabled = this.readBoolean("features.sounds.enabled", true, "sounds.enabled");
+      this.soundsEnabled = this.plugin.getConfig().getBoolean("features.sounds.enabled", true);
       this.spawnSetFeedbackChannel = this.readFeedbackChannel("feedback.spawn-set", FeedbackChannel.CHAT);
       this.spawnTeleportFeedbackChannel = this.readFeedbackChannel("feedback.spawn-teleport", FeedbackChannel.ACTION_BAR);
-      FeedbackChannel buildFeedbackFallback = this.plugin.getConfig().getBoolean("build-mode.action-bar", true) ? FeedbackChannel.ACTION_BAR : FeedbackChannel.CHAT;
-      this.buildModeFeedbackChannel = this.readFeedbackChannel("feedback.build-mode", buildFeedbackFallback);
+      this.buildModeFeedbackChannel = this.readFeedbackChannel("feedback.build-mode", FeedbackChannel.ACTION_BAR);
       this.visibilityFeedbackChannel = this.readFeedbackChannel("feedback.visibility-toggle", FeedbackChannel.NONE);
       this.selectorConnectFeedbackChannel = this.readFeedbackChannel("feedback.selector-connect", FeedbackChannel.ACTION_BAR);
 
@@ -715,17 +714,4 @@ public class ConfigService {
       }
    }
 
-   private boolean readBoolean(String primaryPath, boolean fallback, String... legacyPaths) {
-      if (this.plugin.getConfig().contains(primaryPath)) {
-         return this.plugin.getConfig().getBoolean(primaryPath, fallback);
-      }
-
-      for (String legacyPath : legacyPaths) {
-         if (this.plugin.getConfig().contains(legacyPath)) {
-            return this.plugin.getConfig().getBoolean(legacyPath, fallback);
-         }
-      }
-
-      return fallback;
-   }
 }
