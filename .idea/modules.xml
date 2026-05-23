@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MLobby.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MLobby.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/LobbySystem.main.iml" filepath="$PROJECT_DIR$/.idea/modules/LobbySystem.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Template.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Template.main.iml" />
     </modules>
   </component>
