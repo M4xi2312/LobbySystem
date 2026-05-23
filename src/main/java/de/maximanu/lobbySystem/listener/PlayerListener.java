@@ -9,7 +9,10 @@ import io.papermc.paper.event.player.PlayerPickEntityEvent;
 import java.util.Iterator;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,12 +22,20 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
@@ -32,10 +43,14 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.weather.ThunderChangeEvent;
+import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.event.world.TimeSkipEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -63,7 +78,7 @@ public class PlayerListener implements Listener {
    @EventHandler
    public void onRespawn(PlayerRespawnEvent event) {
       Location spawn = this.plugin.getSpawnService().getSpawnLocation();
-      if (this.configService.isTeleportOnRespawn() && spawn != null) {
+      if (this.configService.isSpawnEnabled() && this.configService.isTeleportOnRespawn() && spawn != null) {
          event.setRespawnLocation(spawn);
       }
 
@@ -96,7 +111,7 @@ public class PlayerListener implements Listener {
          return;
       }
 
-      if (event.getCause() == DamageCause.VOID && this.configService.isTeleportOnVoid()) {
+      if (event.getCause() == DamageCause.VOID && this.configService.isSpawnEnabled() && this.configService.isTeleportOnVoid()) {
          if (this.lobbyPlayerService.teleportToSpawnIfSet(player, false, () -> this.lobbyPlayerService.refreshPlayer(player))) {
             event.setCancelled(true);
             return;
@@ -126,6 +141,54 @@ public class PlayerListener implements Listener {
    @EventHandler(ignoreCancelled = true)
    public void onBlockPlace(BlockPlaceEvent event) {
       if (this.lobbyPlayerService.shouldProtect(event.getPlayer()) && this.configService.isProtectBlockPlace() && !this.lobbyPlayerService.isBuildMode(event.getPlayer())) {
+         event.setCancelled(true);
+      }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+      if (event.getBlock().getType() != Material.FARMLAND || !this.configService.isProtectionEnabled() || !this.configService.isProtectFarmlandTrample()) {
+         return;
+      }
+
+      if (event.getEntity() instanceof Player player) {
+         if (this.lobbyWorldService.isLobbyWorld(player) && !this.lobbyPlayerService.isBuildMode(player)) {
+            event.setCancelled(true);
+         }
+
+         return;
+      }
+
+      if (this.lobbyWorldService.isLobbyWorld(event.getBlock().getWorld())) {
+         event.setCancelled(true);
+      }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onWeatherChange(WeatherChangeEvent event) {
+      if (event.toWeatherState() && this.shouldProtectWorld(event.getWorld()) && this.configService.isProtectWeatherChange()) {
+         event.setCancelled(true);
+      }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onThunderChange(ThunderChangeEvent event) {
+      if (event.toThunderState() && this.shouldProtectWorld(event.getWorld()) && this.configService.isProtectWeatherChange()) {
+         event.setCancelled(true);
+      }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onTimeSkip(TimeSkipEvent event) {
+      if (this.shouldProtectWorld(event.getWorld()) && this.configService.isProtectTimeLock()) {
+         event.setCancelled(true);
+         event.getWorld().setTime(this.configService.getLockedTime());
+      }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onCreatureSpawn(CreatureSpawnEvent event) {
+      if (this.shouldProtectWorld(event.getLocation().getWorld()) && this.configService.isProtectMobSpawning()) {
          event.setCancelled(true);
       }
    }
@@ -176,9 +239,62 @@ public class PlayerListener implements Listener {
 
    @EventHandler(ignoreCancelled = true)
    public void onEntityInteract(PlayerInteractEntityEvent event) {
+      if (event.getRightClicked() instanceof ItemFrame && this.lobbyPlayerService.shouldProtect(event.getPlayer()) && this.configService.isProtectItemFrameRotate() && !this.lobbyPlayerService.isBuildMode(event.getPlayer())) {
+         event.setCancelled(true);
+         return;
+      }
+
       if (this.lobbyPlayerService.shouldProtect(event.getPlayer()) && this.configService.isProtectEntityInteract() && !this.lobbyPlayerService.isBuildMode(event.getPlayer())) {
          event.setCancelled(true);
       }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
+      if (this.lobbyPlayerService.shouldProtect(event.getPlayer()) && this.configService.isProtectArmorStandEdit() && !this.lobbyPlayerService.isBuildMode(event.getPlayer())) {
+         event.setCancelled(true);
+      }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onBucketEmpty(PlayerBucketEmptyEvent event) {
+      if (this.lobbyPlayerService.shouldProtect(event.getPlayer()) && this.configService.isProtectBuckets() && !this.lobbyPlayerService.isBuildMode(event.getPlayer())) {
+         event.setCancelled(true);
+      }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onBucketFill(PlayerBucketFillEvent event) {
+      if (this.lobbyPlayerService.shouldProtect(event.getPlayer()) && this.configService.isProtectBuckets() && !this.lobbyPlayerService.isBuildMode(event.getPlayer())) {
+         event.setCancelled(true);
+      }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onPlayerPortal(PlayerPortalEvent event) {
+      if (this.lobbyPlayerService.shouldProtect(event.getPlayer()) && this.configService.isProtectPortalUse() && !this.lobbyPlayerService.isBuildMode(event.getPlayer())) {
+         event.setCancelled(true);
+      }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onEntityPortal(EntityPortalEvent event) {
+      if (!(event.getEntity() instanceof Player) && this.shouldProtectWorld(event.getFrom().getWorld()) && this.configService.isProtectPortalUse()) {
+         event.setCancelled(true);
+      }
+   }
+
+   @EventHandler(ignoreCancelled = true)
+   public void onHangingBreak(HangingBreakEvent event) {
+      if (!this.shouldProtectWorld(event.getEntity().getWorld()) || !this.configService.isProtectHangingBreak()) {
+         return;
+      }
+
+      if (event instanceof HangingBreakByEntityEvent byEntity && byEntity.getRemover() instanceof Player player && this.lobbyPlayerService.isBuildMode(player)) {
+         return;
+      }
+
+      event.setCancelled(true);
    }
 
    @EventHandler
@@ -272,7 +388,7 @@ public class PlayerListener implements Listener {
          return;
       }
 
-      if (this.lobbyWorldService.isLobbyWorld(player) && !this.lobbyPlayerService.isBuildMode(player)) {
+      if (this.lobbyWorldService.isLobbyWorld(player) && this.configService.isProtectItemPickup() && !this.lobbyPlayerService.isBuildMode(player)) {
          event.setCancelled(true);
       }
    }
@@ -358,5 +474,9 @@ public class PlayerListener implements Listener {
    private boolean isHotbarRawSlot(int rawSlot, InventoryView view) {
       int hotbarBase = view.getTopInventory().getSize() + 27;
       return this.lobbyPlayerService.getHotbarService().getHotbarSlots().stream().anyMatch((slot) -> rawSlot == hotbarBase + slot);
+   }
+
+   private boolean shouldProtectWorld(World world) {
+      return this.configService.isProtectionEnabled() && this.lobbyWorldService.isLobbyWorld(world);
    }
 }

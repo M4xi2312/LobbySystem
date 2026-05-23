@@ -20,7 +20,7 @@ public class SpawnCommand implements CommandExecutor {
       }
 
       Player player = (Player)sender;
-      if (!this.plugin.getConfigService().isSpawnCommandEnabled()) {
+      if (!this.plugin.getConfigService().isSpawnEnabled()) {
          this.plugin.getLobbyPlayerService().sendFeatureDisabled(player, "spawn");
          return true;
       }

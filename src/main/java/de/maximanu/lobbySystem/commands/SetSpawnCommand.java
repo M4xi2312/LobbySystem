@@ -20,7 +20,7 @@ public class SetSpawnCommand implements CommandExecutor {
       }
 
       Player player = (Player)sender;
-      if (!this.plugin.getConfigService().isSetSpawnCommandEnabled()) {
+      if (!this.plugin.getConfigService().isSpawnEnabled()) {
          this.plugin.getLobbyPlayerService().sendFeatureDisabled(player, "setspawn");
          return true;
       }

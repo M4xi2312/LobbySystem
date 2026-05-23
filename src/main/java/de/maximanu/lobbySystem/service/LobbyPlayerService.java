@@ -7,6 +7,8 @@ import de.maximanu.lobbySystem.menu.ServerSelectorMenu;
 import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -46,7 +48,7 @@ public class LobbyPlayerService {
             return;
          }
 
-         if (this.configService.isTeleportOnJoin() && this.teleportToSpawnIfSet(player, false, () -> this.refreshPlayer(player))) {
+         if (this.configService.isSpawnEnabled() && this.configService.isTeleportOnJoin() && this.teleportToSpawnIfSet(player, false, () -> this.refreshPlayer(player))) {
             return;
          }
 
@@ -84,9 +86,9 @@ public class LobbyPlayerService {
          return;
       }
 
-      player.sendMessage(this.messageService.formatComponent("links.website", "Website: {link}", Map.of("link", this.configService.getLink("website", "https://example.com"))));
-      player.sendMessage(this.messageService.formatComponent("links.discord", "Discord: {link}", Map.of("link", this.configService.getLink("discord", "https://discord.gg/example"))));
-      player.sendMessage(this.messageService.formatComponent("links.store", "Store: {link}", Map.of("link", this.configService.getLink("store", "https://store.example.com"))));
+      this.sendClickableLink(player, "links.website", "Website: {link}", this.configService.getLink("website", "https://example.com"));
+      this.sendClickableLink(player, "links.discord", "Discord: {link}", this.configService.getLink("discord", "https://discord.gg/example"));
+      this.sendClickableLink(player, "links.store", "Store: {link}", this.configService.getLink("store", "https://store.example.com"));
    }
 
    public void togglePlayerHider(Player player) {
@@ -120,6 +122,18 @@ public class LobbyPlayerService {
    }
 
    public boolean teleportToSpawnIfSet(Player player, boolean sendFeedback, Runnable completion) {
+      if (!this.configService.isSpawnEnabled()) {
+         if (sendFeedback) {
+            this.sendFeatureDisabled(player, "spawn");
+         }
+
+         if (completion != null) {
+            completion.run();
+         }
+
+         return false;
+      }
+
       Location spawn = this.spawnService.getSpawnLocation();
       if (spawn == null) {
          if (sendFeedback) {
@@ -228,6 +242,13 @@ public class LobbyPlayerService {
 
    public void sendFeatureDisabled(Player player, String featureName) {
       player.sendMessage(this.messageService.formatComponent("errors.feature-disabled", "<#FF5C5C>Error <#D6D6D6>The feature <#FFFFFF>{feature} <#D6D6D6>is disabled in config.", Map.of("feature", featureName)));
+   }
+
+   private void sendClickableLink(Player player, String messagePath, String fallback, String link) {
+      Component message = this.messageService.formatComponent(messagePath, fallback, Map.of("link", link))
+         .clickEvent(ClickEvent.openUrl(link))
+         .hoverEvent(HoverEvent.showText(this.messageService.formatComponent("links.hover", "<#D6D6D6>Open <#FFFFFF>{link}", Map.of("link", link))));
+      player.sendMessage(message);
    }
 
    // Internal state sync

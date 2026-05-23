@@ -5,10 +5,33 @@
 # MiniMessage is supported in messages.yml and server names/lore.
 # =========================================================
 
-# Spawn and command settings for the lobby.
+# Central feature switches. Disable a feature here to turn off its runtime behavior.
+features:
+  spawn:
+    enabled: true
+  protection:
+    enabled: true
+  build-mode:
+    enabled: true
+  double-jump:
+    enabled: true
+  hotbar:
+    enabled: true
+    info:
+      enabled: true
+    selector:
+      enabled: true
+    hider:
+      enabled: true
+  selector:
+    enabled: true
+  links:
+    enabled: true
+  sounds:
+    enabled: true
+
+# Spawn feature settings for commands and automatic lobby teleports.
 spawn:
-  command-enabled: true
-  set-command-enabled: true
   world: world
   x: 0.5
   y: 90.0
@@ -24,7 +47,6 @@ lobby:
   teleport-on-void: true
 
   protect:
-    enabled: true
     damage: true
     hunger: true
     block-break: true
@@ -33,9 +55,19 @@ lobby:
     entity-interact: true
     inventory: true
     item-drop: true
+    item-pickup: true
+    farmland-trample: true
+    weather-change: true
+    time-lock: true
+    locked-time: 6000
+    mob-spawning: true
+    portal-use: true
+    buckets: true
+    armor-stand-edit: true
+    item-frame-rotate: true
+    hanging-break: true
 
   double-jump:
-    enabled: true
     forward: 1.15
     up: 0.82
     cooldown-ticks: 30
@@ -43,28 +75,23 @@ lobby:
 
 # Build mode is stored per player and only applies inside the lobby world.
 build-mode:
-  enabled: true
   allow-flight: false
   disable-double-jump: true
   reset-on-quit: true
 
 # Custom lobby items are only given in the lobby world while build mode is off.
 hotbar:
-  enabled: true
   lock: true
 
   info:
-    enabled: true
     slot: 0
     material: BOOK
 
   selector:
-    enabled: true
     slot: 4
     material: COMPASS
 
   hider:
-    enabled: true
     slot: 8
     material: PLAYER_HEAD
 
@@ -80,7 +107,6 @@ feedback:
 # Selector menu layout and pagination.
 menu:
   selector:
-    enabled: true
     size: 27
     layout-slots: [10, 11, 12, 14, 15, 16]
     prev-slot: 18
@@ -90,7 +116,6 @@ menu:
 
 # Link output for the lobby info item.
 links:
-  enabled: true
   website: "https://example.com"
   discord: "https://discord.gg/example"
   store: "https://store.example.com"
@@ -117,8 +142,6 @@ servers:
 
 # Optional sound feedback for interactions and state changes.
 sounds:
-  enabled: true
-
   double-jump:
     name: "minecraft:entity.breeze.jump"
     volume: 0.95

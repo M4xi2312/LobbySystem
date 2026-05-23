@@ -41,6 +41,7 @@ actionbar:
   selector-connecting: "<gradient:#FFE082:#FFB347>Connecting to <#FFFFFF>{server}"
 
 links:
+  hover: "<#D6D6D6>Open <#FFFFFF>{link}"
   website: "<gradient:#FF8A80:#FFB199>Website</gradient> <#7A7A7A>- <#FFFFFF>{link}"
   discord: "<gradient:#7EE8FA:#5AA9FF>Discord</gradient> <#7A7A7A>- <#FFFFFF>{link}"
   store: "<gradient:#FFE082:#FFB347>Store</gradient> <#7A7A7A>- <#FFFFFF>{link}"
