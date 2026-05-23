@@ -57,6 +57,8 @@ lobby:
     item-drop: true
     item-pickup: true
     farmland-trample: true
+    # Uses vanilla gamerules for low-cost time/weather locking in the lobby world.
+    manage-gamerules: true
     weather-change: true
     time-lock: true
     locked-time: 6000

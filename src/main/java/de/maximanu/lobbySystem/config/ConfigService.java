@@ -38,6 +38,7 @@ public class ConfigService {
    private boolean protectItemDrop;
    private boolean protectItemPickup;
    private boolean protectFarmlandTrample;
+   private boolean protectManageGameRules;
    private boolean protectWeatherChange;
    private boolean protectTimeLock;
    private long lockedTime;
@@ -176,6 +177,10 @@ public class ConfigService {
 
    public boolean isProtectFarmlandTrample() {
       return this.protectFarmlandTrample;
+   }
+
+   public boolean isProtectManageGameRules() {
+      return this.protectManageGameRules;
    }
 
    public boolean isProtectWeatherChange() {
@@ -457,9 +462,10 @@ public class ConfigService {
       this.protectItemDrop = this.plugin.getConfig().getBoolean("lobby.protect.item-drop", true);
       this.protectItemPickup = this.plugin.getConfig().getBoolean("lobby.protect.item-pickup", true);
       this.protectFarmlandTrample = this.plugin.getConfig().getBoolean("lobby.protect.farmland-trample", true);
+      this.protectManageGameRules = this.plugin.getConfig().getBoolean("lobby.protect.manage-gamerules", true);
       this.protectWeatherChange = this.plugin.getConfig().getBoolean("lobby.protect.weather-change", true);
       this.protectTimeLock = this.plugin.getConfig().getBoolean("lobby.protect.time-lock", true);
-      this.lockedTime = Math.max(0L, this.plugin.getConfig().getLong("lobby.protect.locked-time", 6000L));
+      this.lockedTime = Math.floorMod(this.plugin.getConfig().getLong("lobby.protect.locked-time", 6000L), 24000L);
       this.protectMobSpawning = this.plugin.getConfig().getBoolean("lobby.protect.mob-spawning", true);
       this.protectPortalUse = this.plugin.getConfig().getBoolean("lobby.protect.portal-use", true);
       this.protectBuckets = this.plugin.getConfig().getBoolean("lobby.protect.buckets", true);

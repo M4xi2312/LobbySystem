@@ -10,15 +10,14 @@ import de.maximanu.lobbySystem.menu.ServerSelectorMenu;
 import de.maximanu.lobbySystem.service.BuildModeService;
 import de.maximanu.lobbySystem.service.DoubleJumpService;
 import de.maximanu.lobbySystem.service.HotbarService;
+import de.maximanu.lobbySystem.service.LobbyEnvironmentService;
 import de.maximanu.lobbySystem.service.LobbyPlayerService;
 import de.maximanu.lobbySystem.service.LobbyWorldService;
 import de.maximanu.lobbySystem.service.MessageService;
 import de.maximanu.lobbySystem.service.PlayerStateService;
 import de.maximanu.lobbySystem.service.SpawnService;
 import de.maximanu.lobbySystem.service.VisibilityService;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,7 +34,7 @@ public final class LobbySystem extends JavaPlugin {
    private BuildModeService buildModeService;
    private LobbyPlayerService lobbyPlayerService;
    private LobbyWorldService lobbyWorldService;
-   private ScheduledTask timeLockTask;
+   private LobbyEnvironmentService lobbyEnvironmentService;
 
    public void onEnable() {
       // Core service wiring
@@ -47,13 +46,14 @@ public final class LobbySystem extends JavaPlugin {
       this.playerStateService = new PlayerStateService();
       this.spawnService = new SpawnService(this);
       this.lobbyWorldService = new LobbyWorldService(this);
+      this.lobbyEnvironmentService = new LobbyEnvironmentService(this);
       this.visibilityService = new VisibilityService(this);
       this.doubleJumpService = new DoubleJumpService(this);
       this.buildModeService = new BuildModeService(this);
       this.hotbarService = new HotbarService(this);
       this.serverSelectorMenu = new ServerSelectorMenu(this, this.configService);
       this.lobbyPlayerService = new LobbyPlayerService(this);
-      this.startTimeLockTask();
+      this.lobbyEnvironmentService.start();
 
       // Command and event registration
       this.registerCommand("spawn", new SpawnCommand(this));
@@ -66,9 +66,8 @@ public final class LobbySystem extends JavaPlugin {
    }
 
    public void onDisable() {
-      if (this.timeLockTask != null) {
-         this.timeLockTask.cancel();
-         this.timeLockTask = null;
+      if (this.lobbyEnvironmentService != null) {
+         this.lobbyEnvironmentService.stop();
       }
 
       this.saveConfig();
@@ -87,6 +86,7 @@ public final class LobbySystem extends JavaPlugin {
       this.spawnService.reload();
       this.hotbarService.reload();
       this.serverSelectorMenu.reloadMessages();
+      this.lobbyEnvironmentService.reload();
    }
 
    private void registerCommand(String name, CommandExecutor executor) {
@@ -98,31 +98,6 @@ public final class LobbySystem extends JavaPlugin {
             this.getCommand(name).setTabCompleter(tabCompleter);
          }
       }
-   }
-
-   private void startTimeLockTask() {
-      this.timeLockTask = this.getServer().getGlobalRegionScheduler().runAtFixedRate(this, (task) -> {
-         if (!this.configService.isProtectionEnabled() || (!this.configService.isProtectTimeLock() && !this.configService.isProtectWeatherChange())) {
-            return;
-         }
-
-         String worldName = this.configService.getLobbyWorldName();
-         if (worldName.isBlank()) {
-            return;
-         }
-
-         World world = this.getServer().getWorld(worldName);
-         if (world != null) {
-            if (this.configService.isProtectTimeLock()) {
-               world.setTime(this.configService.getLockedTime());
-            }
-
-            if (this.configService.isProtectWeatherChange()) {
-               world.setStorm(false);
-               world.setThundering(false);
-            }
-         }
-      }, 20L, 20L);
    }
 
    public MessageService getMessageService() {
@@ -167,5 +142,9 @@ public final class LobbySystem extends JavaPlugin {
 
    public LobbyWorldService getLobbyWorldService() {
       return this.lobbyWorldService;
+   }
+
+   public LobbyEnvironmentService getLobbyEnvironmentService() {
+      return this.lobbyEnvironmentService;
    }
 }

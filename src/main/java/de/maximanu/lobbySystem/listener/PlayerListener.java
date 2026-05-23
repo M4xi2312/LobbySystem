@@ -180,9 +180,12 @@ public class PlayerListener implements Listener {
 
    @EventHandler(ignoreCancelled = true)
    public void onTimeSkip(TimeSkipEvent event) {
+      if (this.plugin.getLobbyEnvironmentService().isApplyingTimeLock()) {
+         return;
+      }
+
       if (this.shouldProtectWorld(event.getWorld()) && this.configService.isProtectTimeLock()) {
          event.setCancelled(true);
-         event.getWorld().setTime(this.configService.getLockedTime());
       }
    }
 
