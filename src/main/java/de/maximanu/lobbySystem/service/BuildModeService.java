@@ -1,6 +1,9 @@
 package de.maximanu.lobbySystem.service;
 
 import de.maximanu.lobbySystem.LobbySystem;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
@@ -8,6 +11,7 @@ public class BuildModeService {
    private final LobbySystem plugin;
    private final PlayerStateService playerStateService;
    private final MessageService messageService;
+   private final Map<UUID, Boolean> activeStates = new ConcurrentHashMap<>();
 
    public BuildModeService(LobbySystem plugin) {
       this.plugin = plugin;
@@ -18,10 +22,6 @@ public class BuildModeService {
    public boolean toggle(Player player) {
       boolean enabled = !this.isEnabled(player);
       this.setEnabled(player, enabled);
-      if (!enabled && this.plugin.getLobbyWorldService().isLobbyWorld(player)) {
-         this.plugin.getHotbarService().resetLobbyInventory(player);
-      }
-
       this.applyState(player);
       this.sendFeedback(player, enabled);
       return enabled;
@@ -37,11 +37,18 @@ public class BuildModeService {
 
    // Runtime state
    public void applyState(Player player) {
+      UUID uniqueId = player.getUniqueId();
       boolean active = this.plugin.getConfigService().isBuildModeEnabled()
          && this.plugin.getLobbyWorldService().isLobbyWorld(player)
          && this.isEnabled(player);
+      boolean wasActive = this.activeStates.getOrDefault(uniqueId, false);
 
       if (!active) {
+         this.activeStates.remove(uniqueId);
+         if (wasActive && this.plugin.getLobbyWorldService().isLobbyWorld(player)) {
+            this.plugin.getHotbarService().resetLobbyInventory(player);
+         }
+
          if (player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
             player.setFlying(false);
             player.setAllowFlight(false);
@@ -50,6 +57,7 @@ public class BuildModeService {
          return;
       }
 
+      this.activeStates.put(uniqueId, true);
       if (this.plugin.getConfigService().isBuildModeAllowFlight() && player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
          player.setAllowFlight(true);
       }
@@ -59,6 +67,8 @@ public class BuildModeService {
       if (this.plugin.getConfigService().isBuildModeResetOnQuit()) {
          this.playerStateService.clearBuildMode(player.getUniqueId());
       }
+
+      this.activeStates.remove(player.getUniqueId());
    }
 
    // User feedback

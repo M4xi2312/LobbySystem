@@ -7,6 +7,9 @@ import de.maximanu.lobbySystem.service.LobbyWorldService;
 import io.papermc.paper.event.player.PlayerPickBlockEvent;
 import io.papermc.paper.event.player.PlayerPickEntityEvent;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -51,16 +54,20 @@ import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.TimeSkipEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public class PlayerListener implements Listener {
+   private static final long MOVE_CHECK_INTERVAL_MILLIS = 100L;
+
    private final LobbySystem plugin;
    private final ConfigService configService;
    private final LobbyPlayerService lobbyPlayerService;
    private final LobbyWorldService lobbyWorldService;
+   private final Map<UUID, Long> nextMoveChecks = new ConcurrentHashMap<>();
 
    public PlayerListener(LobbySystem plugin) {
       this.plugin = plugin;
@@ -91,6 +98,17 @@ public class PlayerListener implements Listener {
    }
 
    @EventHandler
+   public void onWorldLoad(WorldLoadEvent event) {
+      if (event.getWorld().getName().equalsIgnoreCase(this.configService.getSpawnWorldName())) {
+         this.plugin.getSpawnService().reload();
+      }
+
+      if (this.lobbyWorldService.isLobbyWorld(event.getWorld())) {
+         this.plugin.getLobbyEnvironmentService().reload();
+      }
+   }
+
+   @EventHandler
    public void onGameModeChange(PlayerGameModeChangeEvent event) {
       Player player = event.getPlayer();
       player.getScheduler().execute(this.plugin, () -> this.lobbyPlayerService.refreshPlayer(player), null, 1L);
@@ -102,6 +120,7 @@ public class PlayerListener implements Listener {
       this.plugin.getDoubleJumpService().clear(player, true);
       this.plugin.getBuildModeService().clearOnQuit(player);
       this.plugin.getPlayerStateService().clearVisibility(player.getUniqueId());
+      this.nextMoveChecks.remove(player.getUniqueId());
    }
 
    // Protection and interaction rules
@@ -439,6 +458,10 @@ public class PlayerListener implements Listener {
          return;
       }
 
+      if (!this.shouldRunMoveCheck(player)) {
+         return;
+      }
+
       if (!this.lobbyPlayerService.getDoubleJumpService().isOnCooldown(player)) {
          player.setAllowFlight(true);
       }
@@ -476,7 +499,19 @@ public class PlayerListener implements Listener {
 
    private boolean isHotbarRawSlot(int rawSlot, InventoryView view) {
       int hotbarBase = view.getTopInventory().getSize() + 27;
-      return this.lobbyPlayerService.getHotbarService().getHotbarSlots().stream().anyMatch((slot) -> rawSlot == hotbarBase + slot);
+      int hotbarSlot = rawSlot - hotbarBase;
+      return hotbarSlot >= 0 && hotbarSlot <= 8 && this.lobbyPlayerService.getHotbarService().isHotbarSlot(hotbarSlot);
+   }
+
+   private boolean shouldRunMoveCheck(Player player) {
+      long now = System.currentTimeMillis();
+      long nextAllowed = this.nextMoveChecks.getOrDefault(player.getUniqueId(), 0L);
+      if (nextAllowed > now) {
+         return false;
+      }
+
+      this.nextMoveChecks.put(player.getUniqueId(), now + MOVE_CHECK_INTERVAL_MILLIS);
+      return true;
    }
 
    private boolean shouldProtectWorld(World world) {

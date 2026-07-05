@@ -18,6 +18,19 @@ public class VisibilityService {
       }
    }
 
+   public void refreshPlayer(Player player) {
+      PlayerVisibilityState playerState = this.plugin.getPlayerStateService().getPlayerVisibilityState(player.getUniqueId());
+      for (Player other : this.plugin.getServer().getOnlinePlayers()) {
+         if (other.equals(player)) {
+            continue;
+         }
+
+         PlayerVisibilityState otherState = this.plugin.getPlayerStateService().getPlayerVisibilityState(other.getUniqueId());
+         this.applyVisibilityToTarget(player, other, playerState);
+         this.applyVisibilityToTarget(other, player, otherState);
+      }
+   }
+
    public void applyVisibilityToTarget(Player viewer, Player target, PlayerVisibilityState state) {
       if (viewer.equals(target)) {
          return;

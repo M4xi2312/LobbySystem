@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -441,93 +440,93 @@ public class ConfigService {
 
    public void reload() {
       // World scope and feature toggles
-      this.spawnWorldName = this.plugin.getConfig().getString("spawn.world", "").trim();
+      this.spawnWorldName = this.plugin.getConfig().getString("spawn.location.world", "").trim();
       this.lobbyWorldName = this.plugin.getConfig().getString("lobby.world", this.spawnWorldName).trim();
       if (this.lobbyWorldName.isEmpty()) {
          this.lobbyWorldName = this.spawnWorldName;
       }
 
-      this.spawnEnabled = this.plugin.getConfig().getBoolean("features.spawn.enabled", true);
-      this.teleportOnJoin = this.plugin.getConfig().getBoolean("lobby.teleport-on-join", true);
-      this.teleportOnRespawn = this.plugin.getConfig().getBoolean("lobby.teleport-on-respawn", true);
-      this.teleportOnVoid = this.plugin.getConfig().getBoolean("lobby.teleport-on-void", true);
-      this.protectionEnabled = this.plugin.getConfig().getBoolean("features.protection.enabled", true);
-      this.protectDamage = this.plugin.getConfig().getBoolean("lobby.protect.damage", true);
-      this.protectHunger = this.plugin.getConfig().getBoolean("lobby.protect.hunger", true);
-      this.protectBlockBreak = this.plugin.getConfig().getBoolean("lobby.protect.block-break", true);
-      this.protectBlockPlace = this.plugin.getConfig().getBoolean("lobby.protect.block-place", true);
-      this.protectInteract = this.plugin.getConfig().getBoolean("lobby.protect.interact", true);
-      this.protectEntityInteract = this.plugin.getConfig().getBoolean("lobby.protect.entity-interact", true);
-      this.protectInventory = this.plugin.getConfig().getBoolean("lobby.protect.inventory", true);
-      this.protectItemDrop = this.plugin.getConfig().getBoolean("lobby.protect.item-drop", true);
-      this.protectItemPickup = this.plugin.getConfig().getBoolean("lobby.protect.item-pickup", true);
-      this.protectFarmlandTrample = this.plugin.getConfig().getBoolean("lobby.protect.farmland-trample", true);
-      this.protectManageGameRules = this.plugin.getConfig().getBoolean("lobby.protect.manage-gamerules", true);
-      this.protectWeatherChange = this.plugin.getConfig().getBoolean("lobby.protect.weather-change", true);
-      this.protectTimeLock = this.plugin.getConfig().getBoolean("lobby.protect.time-lock", true);
-      this.lockedTime = Math.floorMod(this.plugin.getConfig().getLong("lobby.protect.locked-time", 6000L), 24000L);
-      this.protectMobSpawning = this.plugin.getConfig().getBoolean("lobby.protect.mob-spawning", true);
-      this.protectPortalUse = this.plugin.getConfig().getBoolean("lobby.protect.portal-use", true);
-      this.protectBuckets = this.plugin.getConfig().getBoolean("lobby.protect.buckets", true);
-      this.protectArmorStandEdit = this.plugin.getConfig().getBoolean("lobby.protect.armor-stand-edit", true);
-      this.protectItemFrameRotate = this.plugin.getConfig().getBoolean("lobby.protect.item-frame-rotate", true);
-      this.protectHangingBreak = this.plugin.getConfig().getBoolean("lobby.protect.hanging-break", true);
-      this.buildModeEnabled = this.plugin.getConfig().getBoolean("features.build-mode.enabled", true);
-      this.doubleJumpEnabled = this.plugin.getConfig().getBoolean("features.double-jump.enabled", true);
-      this.doubleJumpForward = this.plugin.getConfig().getDouble("lobby.double-jump.forward", 1.2D);
-      this.doubleJumpUp = this.plugin.getConfig().getDouble("lobby.double-jump.up", 0.9D);
-      this.doubleJumpCooldownTicks = Math.max(0, this.plugin.getConfig().getInt("lobby.double-jump.cooldown-ticks", 30));
-      this.doubleJumpUseXpBar = this.plugin.getConfig().getBoolean("lobby.double-jump.use-xp-bar", true);
-      this.hotbarLockEnabled = this.plugin.getConfig().getBoolean("hotbar.lock", true);
-      this.hotbarEnabled = this.plugin.getConfig().getBoolean("features.hotbar.enabled", true);
-      this.hotbarInfoEnabled = this.plugin.getConfig().getBoolean("features.hotbar.info.enabled", true);
-      this.hotbarSelectorEnabled = this.plugin.getConfig().getBoolean("features.hotbar.selector.enabled", true);
-      this.hotbarHiderEnabled = this.plugin.getConfig().getBoolean("features.hotbar.hider.enabled", true);
-      this.selectorMenuEnabled = this.plugin.getConfig().getBoolean("features.selector.enabled", true);
-      this.linksEnabled = this.plugin.getConfig().getBoolean("features.links.enabled", true);
+      this.spawnEnabled = this.plugin.getConfig().getBoolean("spawn.enabled", true);
+      this.teleportOnJoin = this.plugin.getConfig().getBoolean("spawn.teleport.on-join", true);
+      this.teleportOnRespawn = this.plugin.getConfig().getBoolean("spawn.teleport.on-respawn", true);
+      this.teleportOnVoid = this.plugin.getConfig().getBoolean("spawn.teleport.on-void", true);
+      this.protectionEnabled = this.plugin.getConfig().getBoolean("protection.enabled", true);
+      this.protectDamage = this.plugin.getConfig().getBoolean("protection.damage", true);
+      this.protectHunger = this.plugin.getConfig().getBoolean("protection.hunger", true);
+      this.protectBlockBreak = this.plugin.getConfig().getBoolean("protection.block-break", true);
+      this.protectBlockPlace = this.plugin.getConfig().getBoolean("protection.block-place", true);
+      this.protectInteract = this.plugin.getConfig().getBoolean("protection.interact", true);
+      this.protectEntityInteract = this.plugin.getConfig().getBoolean("protection.entity-interact", true);
+      this.protectInventory = this.plugin.getConfig().getBoolean("protection.inventory", true);
+      this.protectItemDrop = this.plugin.getConfig().getBoolean("protection.item-drop", true);
+      this.protectItemPickup = this.plugin.getConfig().getBoolean("protection.item-pickup", true);
+      this.protectFarmlandTrample = this.plugin.getConfig().getBoolean("protection.farmland-trample", true);
+      this.protectMobSpawning = this.plugin.getConfig().getBoolean("protection.mob-spawning", true);
+      this.protectPortalUse = this.plugin.getConfig().getBoolean("protection.portal-use", true);
+      this.protectBuckets = this.plugin.getConfig().getBoolean("protection.buckets", true);
+      this.protectArmorStandEdit = this.plugin.getConfig().getBoolean("protection.armor-stand-edit", true);
+      this.protectItemFrameRotate = this.plugin.getConfig().getBoolean("protection.item-frame-rotate", true);
+      this.protectHangingBreak = this.plugin.getConfig().getBoolean("protection.hanging-break", true);
+      this.protectManageGameRules = this.plugin.getConfig().getBoolean("protection.environment.manage-gamerules", true);
+      this.protectWeatherChange = this.plugin.getConfig().getBoolean("protection.environment.weather-lock", true);
+      this.protectTimeLock = this.plugin.getConfig().getBoolean("protection.environment.time-lock", true);
+      this.lockedTime = Math.floorMod(this.plugin.getConfig().getLong("protection.environment.locked-time", 6000L), 24000L);
+      this.buildModeEnabled = this.plugin.getConfig().getBoolean("build-mode.enabled", true);
+      this.doubleJumpEnabled = this.plugin.getConfig().getBoolean("double-jump.enabled", true);
+      this.doubleJumpForward = this.plugin.getConfig().getDouble("double-jump.forward-boost", 1.15D);
+      this.doubleJumpUp = this.plugin.getConfig().getDouble("double-jump.upward-boost", 0.82D);
+      this.doubleJumpCooldownTicks = Math.max(0, this.plugin.getConfig().getInt("double-jump.cooldown-ticks", 30));
+      this.doubleJumpUseXpBar = this.plugin.getConfig().getBoolean("double-jump.xp-bar-cooldown", true);
+      this.hotbarLockEnabled = this.plugin.getConfig().getBoolean("hotbar.lock-items", true);
+      this.hotbarEnabled = this.plugin.getConfig().getBoolean("hotbar.enabled", true);
+      this.hotbarInfoEnabled = this.plugin.getConfig().getBoolean("hotbar.items.info.enabled", true);
+      this.hotbarSelectorEnabled = this.plugin.getConfig().getBoolean("hotbar.items.server-selector.enabled", true);
+      this.hotbarHiderEnabled = this.plugin.getConfig().getBoolean("hotbar.items.player-hider.enabled", true);
+      this.selectorMenuEnabled = this.plugin.getConfig().getBoolean("server-selector.enabled", true);
+      this.linksEnabled = this.plugin.getConfig().getBoolean("links.enabled", true);
       this.buildModeAllowFlight = this.plugin.getConfig().getBoolean("build-mode.allow-flight", false);
       this.buildModeDisableDoubleJump = this.plugin.getConfig().getBoolean("build-mode.disable-double-jump", true);
       this.buildModeResetOnQuit = this.plugin.getConfig().getBoolean("build-mode.reset-on-quit", true);
-      this.soundsEnabled = this.plugin.getConfig().getBoolean("features.sounds.enabled", true);
+      this.soundsEnabled = this.plugin.getConfig().getBoolean("sounds.enabled", true);
       this.spawnSetFeedbackChannel = this.readFeedbackChannel("feedback.spawn-set", FeedbackChannel.CHAT);
       this.spawnTeleportFeedbackChannel = this.readFeedbackChannel("feedback.spawn-teleport", FeedbackChannel.ACTION_BAR);
       this.buildModeFeedbackChannel = this.readFeedbackChannel("feedback.build-mode", FeedbackChannel.ACTION_BAR);
       this.visibilityFeedbackChannel = this.readFeedbackChannel("feedback.visibility-toggle", FeedbackChannel.NONE);
-      this.selectorConnectFeedbackChannel = this.readFeedbackChannel("feedback.selector-connect", FeedbackChannel.ACTION_BAR);
+      this.selectorConnectFeedbackChannel = this.readFeedbackChannel("feedback.server-selector-connect", FeedbackChannel.ACTION_BAR);
 
       // Sound palette
-      this.soundDoubleJump = this.readSound("sounds.double-jump.name");
-      this.soundDoubleJumpVolume = this.readFloat("sounds.double-jump.volume", 1.0F);
-      this.soundDoubleJumpPitch = this.readFloat("sounds.double-jump.pitch", 1.0F);
-      this.soundDoubleJumpDeny = this.readSound("sounds.double-jump-deny.name");
-      this.soundDoubleJumpDenyVolume = this.readFloat("sounds.double-jump-deny.volume", 0.8F);
-      this.soundDoubleJumpDenyPitch = this.readFloat("sounds.double-jump-deny.pitch", 0.8F);
-      this.soundSelectorOpen = this.readSound("sounds.selector-open.name");
-      this.soundSelectorOpenVolume = this.readFloat("sounds.selector-open.volume", 1.0F);
-      this.soundSelectorOpenPitch = this.readFloat("sounds.selector-open.pitch", 1.0F);
-      this.soundInfo = this.readSound("sounds.info.name");
-      this.soundInfoVolume = this.readFloat("sounds.info.volume", 1.0F);
-      this.soundInfoPitch = this.readFloat("sounds.info.pitch", 1.0F);
-      this.soundHiderToggle = this.readSound("sounds.hider-toggle.name");
-      this.soundHiderToggleVolume = this.readFloat("sounds.hider-toggle.volume", 1.0F);
-      this.soundHiderTogglePitch = this.readFloat("sounds.hider-toggle.pitch", 1.0F);
-      this.soundTeleport = this.readSound("sounds.teleport.name");
-      this.soundTeleportVolume = this.readFloat("sounds.teleport.volume", 1.0F);
-      this.soundTeleportPitch = this.readFloat("sounds.teleport.pitch", 1.0F);
-      this.soundBuildModeEnable = this.readSound("sounds.build-mode-enable.name");
-      this.soundBuildModeEnableVolume = this.readFloat("sounds.build-mode-enable.volume", 0.9F);
-      this.soundBuildModeEnablePitch = this.readFloat("sounds.build-mode-enable.pitch", 1.2F);
-      this.soundBuildModeDisable = this.readSound("sounds.build-mode-disable.name");
-      this.soundBuildModeDisableVolume = this.readFloat("sounds.build-mode-disable.volume", 0.9F);
-      this.soundBuildModeDisablePitch = this.readFloat("sounds.build-mode-disable.pitch", 0.9F);
+      this.soundDoubleJump = this.readSound("sounds.entries.double-jump.name");
+      this.soundDoubleJumpVolume = this.readFloat("sounds.entries.double-jump.volume", 1.0F);
+      this.soundDoubleJumpPitch = this.readFloat("sounds.entries.double-jump.pitch", 1.0F);
+      this.soundDoubleJumpDeny = this.readSound("sounds.entries.double-jump-deny.name");
+      this.soundDoubleJumpDenyVolume = this.readFloat("sounds.entries.double-jump-deny.volume", 0.8F);
+      this.soundDoubleJumpDenyPitch = this.readFloat("sounds.entries.double-jump-deny.pitch", 0.8F);
+      this.soundSelectorOpen = this.readSound("sounds.entries.selector-open.name");
+      this.soundSelectorOpenVolume = this.readFloat("sounds.entries.selector-open.volume", 1.0F);
+      this.soundSelectorOpenPitch = this.readFloat("sounds.entries.selector-open.pitch", 1.0F);
+      this.soundInfo = this.readSound("sounds.entries.info.name");
+      this.soundInfoVolume = this.readFloat("sounds.entries.info.volume", 1.0F);
+      this.soundInfoPitch = this.readFloat("sounds.entries.info.pitch", 1.0F);
+      this.soundHiderToggle = this.readSound("sounds.entries.hider-toggle.name");
+      this.soundHiderToggleVolume = this.readFloat("sounds.entries.hider-toggle.volume", 1.0F);
+      this.soundHiderTogglePitch = this.readFloat("sounds.entries.hider-toggle.pitch", 1.0F);
+      this.soundTeleport = this.readSound("sounds.entries.teleport.name");
+      this.soundTeleportVolume = this.readFloat("sounds.entries.teleport.volume", 1.0F);
+      this.soundTeleportPitch = this.readFloat("sounds.entries.teleport.pitch", 1.0F);
+      this.soundBuildModeEnable = this.readSound("sounds.entries.build-mode-enable.name");
+      this.soundBuildModeEnableVolume = this.readFloat("sounds.entries.build-mode-enable.volume", 0.9F);
+      this.soundBuildModeEnablePitch = this.readFloat("sounds.entries.build-mode-enable.pitch", 1.2F);
+      this.soundBuildModeDisable = this.readSound("sounds.entries.build-mode-disable.name");
+      this.soundBuildModeDisableVolume = this.readFloat("sounds.entries.build-mode-disable.volume", 0.9F);
+      this.soundBuildModeDisablePitch = this.readFloat("sounds.entries.build-mode-disable.pitch", 0.9F);
 
       // External links and selector entries
       Map<String, String> linkMap = new HashMap<>();
-      linkMap.put("website", this.plugin.getConfig().getString("links.website", "https://example.com"));
-      linkMap.put("discord", this.plugin.getConfig().getString("links.discord", "https://discord.gg/example"));
-      linkMap.put("store", this.plugin.getConfig().getString("links.store", "https://store.example.com"));
+      linkMap.put("website", this.plugin.getConfig().getString("links.entries.website", "https://example.com"));
+      linkMap.put("discord", this.plugin.getConfig().getString("links.entries.discord", "https://discord.gg/example"));
+      linkMap.put("store", this.plugin.getConfig().getString("links.entries.store", "https://store.example.com"));
       this.links = Collections.unmodifiableMap(linkMap);
-      ConfigurationSection sec = this.plugin.getConfig().getConfigurationSection("servers");
+      ConfigurationSection sec = this.plugin.getConfig().getConfigurationSection("server-selector.servers");
       List<ServerEntry> entries = new ArrayList<>();
       if (sec != null) {
          Iterator var4 = sec.getKeys(false).iterator();
@@ -550,9 +549,7 @@ public class ConfigService {
                   if (!server.contains("lore")) {
                      lore = this.messageService.componentList("menu.selector.item.default-lore", List.of("&7Click to connect"));
                   } else {
-                     MessageService serializer = this.messageService;
-                     Objects.requireNonNull(serializer);
-                     lore = server.getStringList("lore").stream().map(serializer::deserialize).toList();
+                     lore = server.getStringList("lore").stream().map(this.messageService::deserialize).toList();
                   }
 
                   List<Component> finalLore = new ArrayList<>(lore);
@@ -571,22 +568,22 @@ public class ConfigService {
 
       // Hotbar and menu layout
       this.hotbarSlots = new HashMap<>();
-      this.hotbarSlots.put("info", this.normalizeHotbarSlot("hotbar.info.slot", 0));
-      this.hotbarSlots.put("selector", this.normalizeHotbarSlot("hotbar.selector.slot", 4));
-      this.hotbarSlots.put("hider", this.normalizeHotbarSlot("hotbar.hider.slot", 8));
+      this.hotbarSlots.put("info", this.normalizeHotbarSlot("hotbar.items.info.slot", 0));
+      this.hotbarSlots.put("selector", this.normalizeHotbarSlot("hotbar.items.server-selector.slot", 4));
+      this.hotbarSlots.put("hider", this.normalizeHotbarSlot("hotbar.items.player-hider.slot", 8));
       this.warnDuplicateHotbarSlots();
       this.hotbarMaterials = new HashMap<>();
-      this.hotbarMaterials.put("info", this.materialOrDefault(this.plugin.getConfig().getString("hotbar.info.material"), Material.BOOK));
-      this.hotbarMaterials.put("selector", this.materialOrDefault(this.plugin.getConfig().getString("hotbar.selector.material"), Material.COMPASS));
-      this.hotbarMaterials.put("hider", this.materialOrDefault(this.plugin.getConfig().getString("hotbar.hider.material"), Material.PLAYER_HEAD));
-      this.selectorSize = this.normalizeMenuSize(this.plugin.getConfig().getInt("menu.selector.size", 27));
-      this.selectorLayoutSlots = this.normalizeSlots(this.plugin.getConfig().getIntegerList("menu.selector.layout-slots"), this.selectorSize);
-      this.selectorFillerMaterial = this.materialOrDefault(this.plugin.getConfig().getString("menu.selector.filler-material"), Material.LIGHT_GRAY_STAINED_GLASS_PANE);
-      this.selectorFillEmpty = this.plugin.getConfig().getBoolean("menu.selector.fill-empty", true);
+      this.hotbarMaterials.put("info", this.materialOrDefault(this.plugin.getConfig().getString("hotbar.items.info.material"), Material.BOOK));
+      this.hotbarMaterials.put("selector", this.materialOrDefault(this.plugin.getConfig().getString("hotbar.items.server-selector.material"), Material.COMPASS));
+      this.hotbarMaterials.put("hider", this.materialOrDefault(this.plugin.getConfig().getString("hotbar.items.player-hider.material"), Material.PLAYER_HEAD));
+      this.selectorSize = this.normalizeMenuSize(this.plugin.getConfig().getInt("server-selector.menu.size", 27));
+      this.selectorLayoutSlots = this.normalizeSlots(this.plugin.getConfig().getIntegerList("server-selector.menu.layout-slots"), this.selectorSize);
+      this.selectorFillerMaterial = this.materialOrDefault(this.plugin.getConfig().getString("server-selector.menu.filler-material"), Material.LIGHT_GRAY_STAINED_GLASS_PANE);
+      this.selectorFillEmpty = this.plugin.getConfig().getBoolean("server-selector.menu.fill-empty-slots", true);
       int defaultPrev = Math.max(0, this.selectorSize - 9);
       int defaultNext = this.selectorSize - 1;
-      this.selectorPrevSlot = this.normalizeMenuSlot("menu.selector.prev-slot", defaultPrev, this.selectorSize);
-      this.selectorNextSlot = this.normalizeMenuSlot("menu.selector.next-slot", defaultNext, this.selectorSize);
+      this.selectorPrevSlot = this.normalizeMenuSlot("server-selector.menu.previous-page-slot", defaultPrev, this.selectorSize);
+      this.selectorNextSlot = this.normalizeMenuSlot("server-selector.menu.next-page-slot", defaultNext, this.selectorSize);
       if (this.selectorPrevSlot == this.selectorNextSlot && this.selectorPrevSlot != -1) {
          this.selectorNextSlot = defaultNext != this.selectorPrevSlot ? defaultNext : -1;
       }

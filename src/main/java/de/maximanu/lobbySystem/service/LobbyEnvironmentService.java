@@ -14,6 +14,9 @@ public class LobbyEnvironmentService {
    private final LobbySystem plugin;
    private ScheduledTask task;
    private volatile boolean applyingTimeLock;
+   private String managedWorldName;
+   private Boolean originalAdvanceTime;
+   private Boolean originalAdvanceWeather;
 
    public LobbyEnvironmentService(LobbySystem plugin) {
       this.plugin = plugin;
@@ -33,6 +36,8 @@ public class LobbyEnvironmentService {
          this.task.cancel();
          this.task = null;
       }
+
+      this.restoreManagedGameRules();
    }
 
    public boolean isApplyingTimeLock() {
@@ -50,8 +55,11 @@ public class LobbyEnvironmentService {
       boolean weatherLockEnabled = config.isProtectionEnabled() && config.isProtectWeatherChange();
 
       if (config.isProtectManageGameRules()) {
+         this.captureGameRules(world);
          this.setGameRule(world, GameRules.ADVANCE_TIME, !timeLockEnabled);
          this.setGameRule(world, GameRules.ADVANCE_WEATHER, !weatherLockEnabled);
+      } else {
+         this.restoreManagedGameRules();
       }
 
       if (timeLockEnabled) {
@@ -83,6 +91,36 @@ public class LobbyEnvironmentService {
       } finally {
          this.applyingTimeLock = false;
       }
+   }
+
+   private void captureGameRules(World world) {
+      if (!world.getName().equals(this.managedWorldName)) {
+         this.restoreManagedGameRules();
+         this.managedWorldName = world.getName();
+         this.originalAdvanceTime = world.getGameRuleValue(GameRules.ADVANCE_TIME);
+         this.originalAdvanceWeather = world.getGameRuleValue(GameRules.ADVANCE_WEATHER);
+      }
+   }
+
+   private void restoreManagedGameRules() {
+      if (this.managedWorldName == null) {
+         return;
+      }
+
+      World world = this.plugin.getServer().getWorld(this.managedWorldName);
+      if (world != null) {
+         if (this.originalAdvanceTime != null) {
+            world.setGameRule(GameRules.ADVANCE_TIME, this.originalAdvanceTime);
+         }
+
+         if (this.originalAdvanceWeather != null) {
+            world.setGameRule(GameRules.ADVANCE_WEATHER, this.originalAdvanceWeather);
+         }
+      }
+
+      this.managedWorldName = null;
+      this.originalAdvanceTime = null;
+      this.originalAdvanceWeather = null;
    }
 
    private void clearWeather(World world) {

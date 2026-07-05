@@ -71,10 +71,9 @@ public class LobbyPlayerService {
          return;
       }
 
-      this.updateHotbarState(player);
       this.buildModeService.applyState(player);
-      this.visibilityService.applyVisibility(player, this.playerStateService.getPlayerVisibilityState(player.getUniqueId()));
-      this.updateVisibilityForOthers(player);
+      this.updateHotbarState(player);
+      this.visibilityService.refreshPlayer(player);
       this.doubleJumpService.refresh(player, this.shouldDoubleJump(player));
       this.updateDoubleJumpState(player);
    }
@@ -261,17 +260,6 @@ public class LobbyPlayerService {
          this.hotbarService.giveHotbarItems(player);
       } else {
          this.hotbarService.removeHotbarItems(player);
-      }
-   }
-
-   private void updateVisibilityForOthers(Player referencePlayer) {
-      for (Player other : this.plugin.getServer().getOnlinePlayers()) {
-         if (!other.equals(referencePlayer)) {
-            PlayerVisibilityState otherState = this.playerStateService.getPlayerVisibilityState(other.getUniqueId());
-            PlayerVisibilityState referenceState = this.playerStateService.getPlayerVisibilityState(referencePlayer.getUniqueId());
-            this.visibilityService.applyVisibilityToTarget(other, referencePlayer, otherState);
-            this.visibilityService.applyVisibilityToTarget(referencePlayer, other, referenceState);
-         }
       }
    }
 

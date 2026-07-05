@@ -76,7 +76,7 @@ public class ServerSelectorMenu {
       List<Integer> freeSlots = this.buildFreeSlots(size, previousPageSlot, nextPageSlot);
       int perPage = freeSlots.size();
       if (perPage <= 0) {
-         this.plugin.getLogger().warning("Server selector has no usable slots. Check menu.selector.layout-slots in config.yml.");
+         this.plugin.getLogger().warning("Server selector has no usable slots. Check server-selector.menu.layout-slots in config.yml.");
          player.sendMessage(this.messageService.component("menu.selector.invalid-layout", "<gradient:#FF8A80:#FFB199>The selector layout in config.yml is invalid."));
          return;
       }
@@ -98,7 +98,6 @@ public class ServerSelectorMenu {
          return;
       }
 
-      this.updateFillerItem();
       int startIndex = page * perPage;
       List<ServerEntry> pageEntries = entries.subList(startIndex, Math.min(startIndex + perPage, entries.size()));
       Set<Integer> usedSlots = new HashSet<>();

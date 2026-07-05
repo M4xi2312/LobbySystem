@@ -5,97 +5,111 @@
 # MiniMessage is supported in messages.yml and server names/lore.
 # =========================================================
 
-# Central feature switches. Disable a feature here to turn off its runtime behavior.
-features:
-  spawn:
-    enabled: true
-  protection:
-    enabled: true
-  build-mode:
-    enabled: true
-  double-jump:
-    enabled: true
-  hotbar:
-    enabled: true
-    info:
-      enabled: true
-    selector:
-      enabled: true
-    hider:
-      enabled: true
-  selector:
-    enabled: true
-  links:
-    enabled: true
-  sounds:
-    enabled: true
-
-# Spawn feature settings for commands and automatic lobby teleports.
-spawn:
-  world: world
-  x: 0.5
-  y: 90.0
-  z: 0.5
-  yaw: 90
-  pitch: 0
-
 # This world is the scope for all lobby-only features.
 lobby:
   world: world
-  teleport-on-join: true
-  teleport-on-respawn: true
-  teleport-on-void: true
 
-  protect:
-    damage: true
-    hunger: true
-    block-break: true
-    block-place: true
-    interact: true
-    entity-interact: true
-    inventory: true
-    item-drop: true
-    item-pickup: true
-    farmland-trample: true
+# Spawn commands and automatic lobby teleports.
+spawn:
+  enabled: true
+  teleport:
+    on-join: true
+    on-respawn: true
+    on-void: true
+  location:
+    world: world
+    x: 0.5
+    y: 90.0
+    z: 0.5
+    yaw: 90
+    pitch: 0
+
+# Lobby protection. These settings only apply inside the configured lobby world.
+protection:
+  enabled: true
+  damage: true
+  hunger: true
+  block-break: true
+  block-place: true
+  interact: true
+  entity-interact: true
+  inventory: true
+  item-drop: true
+  item-pickup: true
+  farmland-trample: true
+  mob-spawning: true
+  portal-use: true
+  buckets: true
+  armor-stand-edit: true
+  item-frame-rotate: true
+  hanging-break: true
+  environment:
     # Uses vanilla gamerules for low-cost time/weather locking in the lobby world.
     manage-gamerules: true
-    weather-change: true
+    weather-lock: true
     time-lock: true
     locked-time: 6000
-    mob-spawning: true
-    portal-use: true
-    buckets: true
-    armor-stand-edit: true
-    item-frame-rotate: true
-    hanging-break: true
 
-  double-jump:
-    forward: 1.15
-    up: 0.82
-    cooldown-ticks: 30
-    use-xp-bar: true
+# Double jump movement settings.
+double-jump:
+  enabled: true
+  forward-boost: 1.15
+  upward-boost: 0.82
+  cooldown-ticks: 30
+  xp-bar-cooldown: true
 
 # Build mode is stored per player and only applies inside the lobby world.
 build-mode:
+  enabled: true
   allow-flight: false
   disable-double-jump: true
   reset-on-quit: true
 
 # Custom lobby items are only given in the lobby world while build mode is off.
 hotbar:
-  lock: true
+  enabled: true
+  lock-items: true
+  items:
+    info:
+      enabled: true
+      slot: 0
+      material: BOOK
+    server-selector:
+      enabled: true
+      slot: 4
+      material: COMPASS
+    player-hider:
+      enabled: true
+      slot: 8
+      material: PLAYER_HEAD
 
-  info:
-    slot: 0
-    material: BOOK
-
-  selector:
-    slot: 4
-    material: COMPASS
-
-  hider:
-    slot: 8
-    material: PLAYER_HEAD
+# Server selector menu and backend destinations.
+server-selector:
+  enabled: true
+  menu:
+    size: 27
+    layout-slots: [10, 11, 12, 14, 15, 16]
+    previous-page-slot: 18
+    next-page-slot: 26
+    fill-empty-slots: true
+    filler-material: LIGHT_GRAY_STAINED_GLASS_PANE
+  servers:
+    ffa:
+      name: "<gradient:#FFE082:#FFB347>FFA"
+      bungee: "ffa"
+      item: "BOW"
+      slot: 11
+      lore:
+        - "<#6E6E6E>- <#E8E8E8>Fast-paced fights with instant action"
+        - "<#6E6E6E>- <#FFD166>Click to connect"
+    duels:
+      name: "<gradient:#7EE8FA:#5AA9FF>Duels"
+      bungee: "duels"
+      item: "DIAMOND_SWORD"
+      slot: 15
+      lore:
+        - "<#6E6E6E>- <#E8E8E8>1v1, ranked, and quick matches"
+        - "<#6E6E6E>- <#7EE8FA>Click to connect"
 
 # Message delivery for feature feedback.
 feedback:
@@ -104,82 +118,49 @@ feedback:
   spawn-teleport: actionbar
   build-mode: actionbar
   visibility-toggle: none
-  selector-connect: actionbar
-
-# Selector menu layout and pagination.
-menu:
-  selector:
-    size: 27
-    layout-slots: [10, 11, 12, 14, 15, 16]
-    prev-slot: 18
-    next-slot: 26
-    fill-empty: true
-    filler-material: LIGHT_GRAY_STAINED_GLASS_PANE
+  server-selector-connect: actionbar
 
 # Link output for the lobby info item.
 links:
-  website: "https://example.com"
-  discord: "https://discord.gg/example"
-  store: "https://store.example.com"
-
-# Backend destinations used by the selector menu.
-servers:
-  ffa:
-    name: "<gradient:#FFE082:#FFB347>FFA"
-    bungee: "ffa"
-    item: "BOW"
-    slot: 11
-    lore:
-      - "<#6E6E6E>- <#E8E8E8>Fast-paced fights with instant action"
-      - "<#6E6E6E>- <#FFD166>Click to connect"
-
-  duels:
-    name: "<gradient:#7EE8FA:#5AA9FF>Duels"
-    bungee: "duels"
-    item: "DIAMOND_SWORD"
-    slot: 15
-    lore:
-      - "<#6E6E6E>- <#E8E8E8>1v1, ranked, and quick matches"
-      - "<#6E6E6E>- <#7EE8FA>Click to connect"
+  enabled: true
+  entries:
+    website: "https://example.com"
+    discord: "https://discord.gg/example"
+    store: "https://store.example.com"
 
 # Optional sound feedback for interactions and state changes.
 sounds:
-  double-jump:
-    name: "minecraft:entity.breeze.jump"
-    volume: 0.95
-    pitch: 1.15
-
-  double-jump-deny:
-    name: "minecraft:block.note_block.bass"
-    volume: 0.65
-    pitch: 0.8
-
-  selector-open:
-    name: "minecraft:ui.button.click"
-    volume: 0.8
-    pitch: 1.15
-
-  info:
-    name: "minecraft:item.book.page_turn"
-    volume: 0.75
-    pitch: 1.0
-
-  hider-toggle:
-    name: "minecraft:entity.experience_orb.pickup"
-    volume: 0.75
-    pitch: 1.15
-
-  teleport:
-    name: "minecraft:entity.enderman.teleport"
-    volume: 0.85
-    pitch: 1.05
-
-  build-mode-enable:
-    name: "minecraft:block.beacon.power_select"
-    volume: 0.8
-    pitch: 1.25
-
-  build-mode-disable:
-    name: "minecraft:block.beacon.deactivate"
-    volume: 0.8
-    pitch: 0.95
+  enabled: true
+  entries:
+    double-jump:
+      name: "minecraft:entity.breeze.jump"
+      volume: 0.95
+      pitch: 1.15
+    double-jump-deny:
+      name: "minecraft:block.note_block.bass"
+      volume: 0.65
+      pitch: 0.8
+    selector-open:
+      name: "minecraft:ui.button.click"
+      volume: 0.8
+      pitch: 1.15
+    info:
+      name: "minecraft:item.book.page_turn"
+      volume: 0.75
+      pitch: 1.0
+    hider-toggle:
+      name: "minecraft:entity.experience_orb.pickup"
+      volume: 0.75
+      pitch: 1.15
+    teleport:
+      name: "minecraft:entity.enderman.teleport"
+      volume: 0.85
+      pitch: 1.05
+    build-mode-enable:
+      name: "minecraft:block.beacon.power_select"
+      volume: 0.8
+      pitch: 1.25
+    build-mode-disable:
+      name: "minecraft:block.beacon.deactivate"
+      volume: 0.8
+      pitch: 0.95
