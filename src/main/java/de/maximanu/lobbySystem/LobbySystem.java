@@ -1,13 +1,17 @@
 package de.maximanu.lobbySystem;
 
-import de.maximanu.lobbySystem.commands.BuildCommand;
-import de.maximanu.lobbySystem.commands.LobbySystemCommand;
-import de.maximanu.lobbySystem.commands.SetSpawnCommand;
-import de.maximanu.lobbySystem.commands.SpawnCommand;
+import de.maximanu.lobbySystem.command.LobbyCommands;
 import de.maximanu.lobbySystem.config.ConfigService;
-import de.maximanu.lobbySystem.listener.PlayerListener;
+import de.maximanu.lobbySystem.listener.CosmeticsListener;
+import de.maximanu.lobbySystem.listener.DoubleJumpListener;
+import de.maximanu.lobbySystem.listener.HotbarListener;
+import de.maximanu.lobbySystem.listener.MenuListener;
+import de.maximanu.lobbySystem.listener.PlayerLifecycleListener;
+import de.maximanu.lobbySystem.listener.ProtectionListener;
+import de.maximanu.lobbySystem.menu.CosmeticsMenu;
 import de.maximanu.lobbySystem.menu.ServerSelectorMenu;
 import de.maximanu.lobbySystem.service.BuildModeService;
+import de.maximanu.lobbySystem.service.CosmeticService;
 import de.maximanu.lobbySystem.service.DoubleJumpService;
 import de.maximanu.lobbySystem.service.HotbarService;
 import de.maximanu.lobbySystem.service.LobbyEnvironmentService;
@@ -17,12 +21,11 @@ import de.maximanu.lobbySystem.service.MessageService;
 import de.maximanu.lobbySystem.service.PlayerStateService;
 import de.maximanu.lobbySystem.service.SpawnService;
 import de.maximanu.lobbySystem.service.VisibilityService;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class LobbySystem extends JavaPlugin {
-   private PlayerListener playerListener;
    private MessageService messageService;
    private ConfigService configService;
    private HotbarService hotbarService;
@@ -35,12 +38,16 @@ public final class LobbySystem extends JavaPlugin {
    private LobbyPlayerService lobbyPlayerService;
    private LobbyWorldService lobbyWorldService;
    private LobbyEnvironmentService lobbyEnvironmentService;
+   private CosmeticService cosmeticService;
+   private CosmeticsMenu cosmeticsMenu;
 
+   @Override
    public void onEnable() {
-      // Core service wiring
       this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
       this.saveDefaultConfig();
       this.reloadConfig();
+
+      // Core service wiring
       this.messageService = new MessageService(this);
       this.configService = new ConfigService(this, this.messageService);
       this.playerStateService = new PlayerStateService();
@@ -52,32 +59,32 @@ public final class LobbySystem extends JavaPlugin {
       this.buildModeService = new BuildModeService(this);
       this.hotbarService = new HotbarService(this);
       this.serverSelectorMenu = new ServerSelectorMenu(this, this.configService);
+      this.cosmeticService = new CosmeticService(this);
       this.lobbyPlayerService = new LobbyPlayerService(this);
+      this.cosmeticsMenu = new CosmeticsMenu(this);
       this.spawnService.reload();
       this.lobbyEnvironmentService.start();
 
-      // Command and event registration
-      this.registerCommand("spawn", new SpawnCommand(this));
-      this.registerCommand("setspawn", new SetSpawnCommand(this));
-      this.registerCommand("build", new BuildCommand(this));
-      this.registerCommand("lobbysystem", new LobbySystemCommand(this));
-      this.playerListener = new PlayerListener(this);
-      Bukkit.getPluginManager().registerEvents(this.playerListener, this);
+      this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, (event) -> LobbyCommands.register(this, event.registrar()));
+
+      Bukkit.getPluginManager().registerEvents(new PlayerLifecycleListener(this), this);
+      Bukkit.getPluginManager().registerEvents(new ProtectionListener(this), this);
+      Bukkit.getPluginManager().registerEvents(new HotbarListener(this), this);
+      Bukkit.getPluginManager().registerEvents(new DoubleJumpListener(this), this);
+      Bukkit.getPluginManager().registerEvents(new MenuListener(), this);
+      Bukkit.getPluginManager().registerEvents(new CosmeticsListener(this), this);
+
       this.reloadStartupStateDelayed();
       this.getLogger().info("LobbySystem enabled");
    }
 
+   @Override
    public void onDisable() {
       if (this.lobbyEnvironmentService != null) {
          this.lobbyEnvironmentService.stop();
       }
 
-      this.saveConfig();
       this.getLogger().info("LobbySystem disabled");
-   }
-
-   public PlayerListener getPlayerListener() {
-      return this.playerListener;
    }
 
    public void reloadPluginConfig() {
@@ -88,18 +95,8 @@ public final class LobbySystem extends JavaPlugin {
       this.spawnService.reload();
       this.hotbarService.reload();
       this.serverSelectorMenu.reloadMessages();
+      this.cosmeticsMenu.reloadMessages();
       this.lobbyEnvironmentService.reload();
-   }
-
-   private void registerCommand(String name, CommandExecutor executor) {
-      if (this.getCommand(name) == null) {
-         this.getLogger().warning("Command '" + name + "' is missing from plugin.yml.");
-      } else {
-         this.getCommand(name).setExecutor(executor);
-         if (executor instanceof org.bukkit.command.TabCompleter tabCompleter) {
-            this.getCommand(name).setTabCompleter(tabCompleter);
-         }
-      }
    }
 
    private void reloadStartupStateDelayed() {
@@ -155,5 +152,13 @@ public final class LobbySystem extends JavaPlugin {
 
    public LobbyEnvironmentService getLobbyEnvironmentService() {
       return this.lobbyEnvironmentService;
+   }
+
+   public CosmeticService getCosmeticService() {
+      return this.cosmeticService;
+   }
+
+   public CosmeticsMenu getCosmeticsMenu() {
+      return this.cosmeticsMenu;
    }
 }

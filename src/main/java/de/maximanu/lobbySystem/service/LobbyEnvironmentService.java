@@ -1,7 +1,7 @@
 package de.maximanu.lobbySystem.service;
 
 import de.maximanu.lobbySystem.LobbySystem;
-import de.maximanu.lobbySystem.config.ConfigService;
+import de.maximanu.lobbySystem.config.PluginConfig;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.GameRule;
 import org.bukkit.GameRules;
@@ -14,9 +14,11 @@ public class LobbyEnvironmentService {
    private final LobbySystem plugin;
    private ScheduledTask task;
    private volatile boolean applyingTimeLock;
-   private String managedWorldName;
-   private Boolean originalAdvanceTime;
-   private Boolean originalAdvanceWeather;
+   // apply()/restoreManagedGameRules() run via the global region scheduler, but stop() (called
+   // from onDisable) can run on a different thread during shutdown - volatile keeps both in sync.
+   private volatile String managedWorldName;
+   private volatile Boolean originalAdvanceTime;
+   private volatile Boolean originalAdvanceWeather;
 
    public LobbyEnvironmentService(LobbySystem plugin) {
       this.plugin = plugin;
@@ -50,11 +52,11 @@ public class LobbyEnvironmentService {
          return;
       }
 
-      ConfigService config = this.plugin.getConfigService();
-      boolean timeLockEnabled = config.isProtectionEnabled() && config.isProtectTimeLock();
-      boolean weatherLockEnabled = config.isProtectionEnabled() && config.isProtectWeatherChange();
+      PluginConfig config = this.plugin.getConfigService().get();
+      boolean timeLockEnabled = config.protection().enabled() && config.protection().timeLock();
+      boolean weatherLockEnabled = config.protection().enabled() && config.protection().weatherLock();
 
-      if (config.isProtectManageGameRules()) {
+      if (config.protection().manageGameRules()) {
          this.captureGameRules(world);
          this.setGameRule(world, GameRules.ADVANCE_TIME, !timeLockEnabled);
          this.setGameRule(world, GameRules.ADVANCE_WEATHER, !weatherLockEnabled);
@@ -63,7 +65,7 @@ public class LobbyEnvironmentService {
       }
 
       if (timeLockEnabled) {
-         this.syncTime(world, config.getLockedTime());
+         this.syncTime(world, config.protection().lockedTime());
       }
 
       if (weatherLockEnabled) {
@@ -72,7 +74,7 @@ public class LobbyEnvironmentService {
    }
 
    private World getConfiguredLobbyWorld() {
-      String worldName = this.plugin.getConfigService().getLobbyWorldName();
+      String worldName = this.plugin.getConfigService().get().lobbyWorldName();
       if (worldName.isBlank()) {
          return null;
       }

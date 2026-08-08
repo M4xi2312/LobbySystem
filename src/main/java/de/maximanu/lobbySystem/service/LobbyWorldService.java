@@ -22,7 +22,7 @@ public class LobbyWorldService {
          return false;
       }
 
-      String lobbyWorldName = this.plugin.getConfigService().getLobbyWorldName();
+      String lobbyWorldName = this.plugin.getConfigService().get().lobbyWorldName();
       return lobbyWorldName.isEmpty() || world.getName().equalsIgnoreCase(lobbyWorldName);
    }
 

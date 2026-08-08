@@ -6,8 +6,10 @@ import org.bukkit.World;
 
 public class SpawnService {
    private final LobbySystem plugin;
-   private Location cachedSpawnLocation;
-   private String lastMissingWorldName;
+   // Reassigned wholesale on reload() and read from arbitrary Folia region threads (teleports,
+   // respawn handling), so both are volatile to guarantee visibility across threads.
+   private volatile Location cachedSpawnLocation;
+   private volatile String lastMissingWorldName;
 
    public SpawnService(LobbySystem plugin) {
       this.plugin = plugin;
@@ -32,15 +34,17 @@ public class SpawnService {
    }
 
    public Location getSpawnLocation() {
-      if (this.cachedSpawnLocation == null && !this.plugin.getConfigService().getSpawnWorldName().isBlank()) {
+      Location snapshot = this.cachedSpawnLocation;
+      if (snapshot == null && !this.plugin.getConfigService().get().spawnWorldName().isBlank()) {
          this.reload();
+         snapshot = this.cachedSpawnLocation;
       }
 
-      return this.cachedSpawnLocation == null ? null : this.cachedSpawnLocation.clone();
+      return snapshot == null ? null : snapshot.clone();
    }
 
    public void reload() {
-      String worldName = this.plugin.getConfigService().getSpawnWorldName();
+      String worldName = this.plugin.getConfigService().get().spawnWorldName();
       if (worldName.isEmpty()) {
          this.cachedSpawnLocation = null;
          return;

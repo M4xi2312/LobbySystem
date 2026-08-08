@@ -25,12 +25,7 @@ public class DoubleJumpService {
 
    public boolean tryUse(Player player) {
       if (this.isOnCooldown(player)) {
-         this.plugin.getConfigService().playSound(
-            player,
-            this.plugin.getConfigService().getSoundDoubleJumpDeny(),
-            this.plugin.getConfigService().getSoundDoubleJumpDenyVolume(),
-            this.plugin.getConfigService().getSoundDoubleJumpDenyPitch()
-         );
+         this.plugin.getConfigService().playSound(player, this.plugin.getConfigService().get().sounds().doubleJumpDeny());
          return false;
       }
 
@@ -39,7 +34,7 @@ public class DoubleJumpService {
    }
 
    public void startCooldown(Player player) {
-      int cooldownTicks = this.plugin.getConfigService().getDoubleJumpCooldownTicks();
+      int cooldownTicks = this.plugin.getConfigService().get().doubleJump().cooldownTicks();
       if (cooldownTicks <= 0) {
          this.restoreExperienceBar(player);
          return;
@@ -124,12 +119,12 @@ public class DoubleJumpService {
          return;
       }
 
-      if (this.plugin.getConfigService().isDoubleJumpUseXpBar()) {
+      if (this.plugin.getConfigService().get().doubleJump().xpBarCooldown()) {
          this.captureExperienceBar(player);
-         float totalMillis = Math.max(1.0F, this.plugin.getConfigService().getDoubleJumpCooldownTicks() * 50.0F);
+         float totalMillis = Math.max(1.0F, this.plugin.getConfigService().get().doubleJump().cooldownTicks() * 50.0F);
          float progress = Math.max(0.0F, Math.min(1.0F, remainingMillis / totalMillis));
          player.setExp(progress);
-         player.setLevel(Math.max(0, (int)Math.ceil(remainingMillis / 1000.0D)));
+         player.setLevel(Math.max(0, (int) Math.ceil(remainingMillis / 1000.0D)));
       }
    }
 

@@ -1,6 +1,7 @@
 package de.maximanu.lobbySystem.service;
 
 import de.maximanu.lobbySystem.LobbySystem;
+import de.maximanu.lobbySystem.config.BuildModeConfig;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,9 +39,8 @@ public class BuildModeService {
    // Runtime state
    public void applyState(Player player) {
       UUID uniqueId = player.getUniqueId();
-      boolean active = this.plugin.getConfigService().isBuildModeEnabled()
-         && this.plugin.getLobbyWorldService().isLobbyWorld(player)
-         && this.isEnabled(player);
+      BuildModeConfig config = this.plugin.getConfigService().get().buildMode();
+      boolean active = config.enabled() && this.plugin.getLobbyWorldService().isLobbyWorld(player) && this.isEnabled(player);
       boolean wasActive = this.activeStates.getOrDefault(uniqueId, false);
 
       if (!active) {
@@ -58,13 +58,13 @@ public class BuildModeService {
       }
 
       this.activeStates.put(uniqueId, true);
-      if (this.plugin.getConfigService().isBuildModeAllowFlight() && player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
+      if (config.allowFlight() && player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
          player.setAllowFlight(true);
       }
    }
 
    public void clearOnQuit(Player player) {
-      if (this.plugin.getConfigService().isBuildModeResetOnQuit()) {
+      if (this.plugin.getConfigService().get().buildMode().resetOnQuit()) {
          this.playerStateService.clearBuildMode(player.getUniqueId());
       }
 
@@ -73,7 +73,7 @@ public class BuildModeService {
 
    // User feedback
    private void sendFeedback(Player player, boolean enabled) {
-      this.plugin.getConfigService().getBuildModeFeedbackChannel().send(
+      this.plugin.getConfigService().get().feedback().buildMode().send(
          player,
          this.messageService.component(enabled ? "info.build-enabled" : "info.build-disabled", enabled
             ? "<gradient:#FFD166:#FFB347>Build mode enabled</gradient> <#D6D6D6>You can now edit the lobby."
@@ -85,9 +85,7 @@ public class BuildModeService {
 
       this.plugin.getConfigService().playSound(
          player,
-         enabled ? this.plugin.getConfigService().getSoundBuildModeEnable() : this.plugin.getConfigService().getSoundBuildModeDisable(),
-         enabled ? this.plugin.getConfigService().getSoundBuildModeEnableVolume() : this.plugin.getConfigService().getSoundBuildModeDisableVolume(),
-         enabled ? this.plugin.getConfigService().getSoundBuildModeEnablePitch() : this.plugin.getConfigService().getSoundBuildModeDisablePitch()
+         enabled ? this.plugin.getConfigService().get().sounds().buildModeEnable() : this.plugin.getConfigService().get().sounds().buildModeDisable()
       );
    }
 }

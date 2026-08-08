@@ -1,6 +1,8 @@
 package de.maximanu.lobbySystem.service;
 
 import de.maximanu.lobbySystem.LobbySystem;
+import de.maximanu.lobbySystem.config.HotbarAction;
+import de.maximanu.lobbySystem.model.PlayerVisibilityState;
 import org.bukkit.entity.Player;
 
 public class VisibilityService {
@@ -61,7 +63,7 @@ public class VisibilityService {
    }
 
    private boolean shouldApplyVisibility(Player viewer, Player target) {
-      return this.plugin.getConfigService().isHotbarHiderEnabled()
+      return this.plugin.getConfigService().get().hotbar().isActionEnabled(HotbarAction.PLAYER_HIDER)
          && this.plugin.getLobbyWorldService().isLobbyWorld(viewer)
          && this.plugin.getLobbyWorldService().isLobbyWorld(target);
    }

@@ -1,27 +1,31 @@
 # MLobbySystem
 
 A modern, lightweight lobby system for Paper servers — built with performance and flexibility in mind.
-Designed for current server setups, including full support for Folia’s regionized multithreading model.
+Designed for current server setups, including full support for Folia's regionized multithreading model.
 
 ## ✨ Features
 
 * ⚡ **Folia Support** – Built to run safely and efficiently on Folia servers
 * 🧭 **Custom Spawn System** – Define and manage your lobby spawn with ease
-* (coming soon) 🎮 **Join Management** – Control join messages, teleport behavior, and player state
-* 🧰 **Item-Based Actions** – Configure lobby items with custom actions (e.g. compass menus)
+* 🎮 **Join Management** – Custom or silenced join/quit messages, teleport-on-join/respawn/void
+* 🧰 **Item-Based Actions** – Configure lobby items with custom actions (info, server selector, player hider)
+* 🖥️ **Server Selector Menu** – Paginated, MiniMessage-styled proxy server selector
 * 🚫 **Lobby Protection** – Disable damage, hunger, block breaking, and more
-* 🔄 **Auto Teleport** – Send players to spawn automatically on join or respawn
+* 🔄 **Auto Teleport** – Send players to spawn automatically on join, respawn, or void fall
 * 🎛️ **Highly Configurable** – Simple config structure for fast setup and customization
 
 ## 🧩 Compatibility
 
-* ✅ Paper (latest versions)
+* ✅ Paper (1.21.11+)
 * ✅ Folia (fully supported)
 
 ## 🚀 Why MLobbySystem?
 
-MLobbySystem focuses on **modern server architecture**, avoiding outdated sync-heavy logic and ensuring compatibility with next-generation platforms like Folia.
-It’s ideal for developers and server owners who want a clean, efficient lobby solution without unnecessary bloat.
+MLobbySystem focuses on **modern server architecture**: commands are registered through Paper's Brigadier
+command API (real tab-completion, no legacy `CommandExecutor`), config is loaded into typed, immutable
+records instead of scattered mutable fields, and every menu is built on a small reusable click-handler
+framework rather than one-off PersistentDataContainer tags. It avoids outdated sync-heavy logic and stays
+compatible with next-generation platforms like Folia.
 
 ## 📦 Installation
 
@@ -32,8 +36,20 @@ It’s ideal for developers and server owners who want a clean, efficient lobby 
 
 ## ⚙️ Configuration
 
-All features are configurable via easy-to-understand YAML files.
-You can quickly adjust behavior to match your server’s needs without touching code.
+All features are configurable via `config.yml` and `messages.yml`. Every message supports
+[MiniMessage](https://docs.advntr.dev/minimessage/format.html) formatting (gradients, hex colors, etc.).
+
+## 🕹️ Commands
+
+| Command | Permission | Description |
+| --- | --- | --- |
+| `/spawn` | — | Teleport to the lobby spawn |
+| `/setspawn` | `lobbysystem.set` | Set the lobby spawn at your position |
+| `/build` | `lobbysystem.build` | Toggle build mode in the lobby |
+| `/lobbysystem reload` | `lobbysystem.reload` | Reload the config without restarting |
+
+Commands you don't have permission for won't show up in tab-completion at all — this is standard
+Brigadier permission-gating, not a bug.
 
 ## 💬 Support
 

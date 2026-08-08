@@ -11,13 +11,13 @@ errors:
   only-players: "<#FF5C5C>Error <#D6D6D6>This command is only available for players."
   lobby-world-only: "<#FF5C5C>Error <#D6D6D6>This feature only works in the configured lobby world."
   feature-disabled: "<#FF5C5C>Error <#D6D6D6>The feature <#FFFFFF>{feature} <#D6D6D6>is disabled in config."
-  no-permission:
-    build: "<#FF5C5C>Error: <#D6D6D6>You are not allowed to use build mode."
-    setspawn: "<#FF5C5C>Error: <#D6D6D6>You are not allowed to set the spawn."
-    reload: "<#FF5C5C>Error: <#D6D6D6>You are not allowed to reload the plugin."
   spawn-not-set: "<#FF5C5C>Warning: <#D6D6D6>No spawn has been configured yet."
   spawn-not-set-op: "<#FF5C5C>Warning: <#D6D6D6>No spawn set. <#FFFFFF>Use /setspawn."
   teleport-failed: "<#FF5C5C>Error: <#D6D6D6>Teleport failed. Please try again."
+  cosmetics:
+    inventory-full: "<#FF5C5C>Error <#D6D6D6>Your inventory is full."
+    gadget-cooldown: "<#FF5C5C>Wait a moment before using this again."
+    helmet-occupied: "<#FF5C5C>Error <#D6D6D6>Remove your current helmet first."
 
 info:
   spawn-set: "<gradient:#7DFF9C:#B8FFCC>Spawn saved:</gradient> <#D6D6D6>The lobby location has been updated."
@@ -46,19 +46,9 @@ links:
   discord: "<gradient:#7EE8FA:#5AA9FF>Discord</gradient> <#7A7A7A>- <#FFFFFF>{link}"
   store: "<gradient:#FFE082:#FFB347>Store</gradient> <#7A7A7A>- <#FFFFFF>{link}"
 
+# Static hotbar item names/lore now live directly on each item in config.yml (hotbar.items.*).
+# Only the player-hider item is listed here, since its text depends on the current visibility state.
 hotbar:
-  info:
-    name: "<gradient:#F5F7FA:#D7DDE8>Lobby Info"
-    lore:
-      - "<#6E6E6E>- <#E8E8E8>View links and useful information"
-      - "<#6E6E6E>- <#F5F7FA>Right-click to open"
-
-  selector:
-    name: "<gradient:#FFE082:#FFB347>Server Selector"
-    lore:
-      - "<#6E6E6E>- <#E8E8E8>Choose where you want to play"
-      - "<#6E6E6E>- <#FFD166>Right-click to open"
-
   hider:
     name:
       shown: "<gradient:#FF8FA3:#FFB3C1>Players <#E8E8E8>(All)"
@@ -88,3 +78,17 @@ menu:
     item:
       default-lore:
         - "<#6E6E6E>- <#E8E8E8>Click to connect"
+  cosmetics:
+    title: "<gradient:#B39DFF:#7EE8FA>Cosmetics"
+    filler-name: "<gradient:#4A4A4A:#7A7A7A>*"
+    tab:
+      hats: "<gradient:#FFE082:#FFB347>Hats"
+      particles: "<gradient:#7EE8FA:#5AA9FF>Particles"
+      gadgets: "<gradient:#FF8FA3:#FFB3C1>Gadgets"
+    locked:
+      name: "<gray>Locked"
+      lore:
+        - "<#6E6E6E>- <#E8E8E8>You don't have permission for this."
+    equipped: "<#6E6E6E>- <green>Equipped - click to unequip"
+    click-to-equip: "<#6E6E6E>- <#E8E8E8>Click to equip"
+    click-to-receive: "<#6E6E6E>- <#E8E8E8>Click to receive"

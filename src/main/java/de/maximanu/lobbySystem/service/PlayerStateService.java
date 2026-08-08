@@ -1,5 +1,6 @@
 package de.maximanu.lobbySystem.service;
 
+import de.maximanu.lobbySystem.model.PlayerVisibilityState;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

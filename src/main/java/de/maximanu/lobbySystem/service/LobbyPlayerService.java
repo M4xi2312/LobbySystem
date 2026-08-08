@@ -3,7 +3,10 @@ package de.maximanu.lobbySystem.service;
 import de.maximanu.lobbySystem.LobbySystem;
 import de.maximanu.lobbySystem.config.ConfigService;
 import de.maximanu.lobbySystem.config.FeedbackChannel;
+import de.maximanu.lobbySystem.config.HotbarAction;
+import de.maximanu.lobbySystem.config.SoundEffect;
 import de.maximanu.lobbySystem.menu.ServerSelectorMenu;
+import de.maximanu.lobbySystem.model.PlayerVisibilityState;
 import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
@@ -11,7 +14,6 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class LobbyPlayerService {
@@ -26,6 +28,7 @@ public class LobbyPlayerService {
    private final DoubleJumpService doubleJumpService;
    private final BuildModeService buildModeService;
    private final LobbyWorldService lobbyWorldService;
+   private final CosmeticService cosmeticService;
 
    public LobbyPlayerService(LobbySystem plugin) {
       this.plugin = plugin;
@@ -39,6 +42,7 @@ public class LobbyPlayerService {
       this.doubleJumpService = plugin.getDoubleJumpService();
       this.buildModeService = plugin.getBuildModeService();
       this.lobbyWorldService = plugin.getLobbyWorldService();
+      this.cosmeticService = plugin.getCosmeticService();
    }
 
    // Player lifecycle
@@ -48,7 +52,7 @@ public class LobbyPlayerService {
             return;
          }
 
-         if (this.configService.isSpawnEnabled() && this.configService.isTeleportOnJoin() && this.teleportToSpawnIfSet(player, false, () -> this.refreshPlayer(player))) {
+         if (this.configService.get().spawn().enabled() && this.configService.get().spawn().teleportOnJoin() && this.teleportToSpawnIfSet(player, false, () -> this.refreshPlayer(player))) {
             return;
          }
 
@@ -76,22 +80,23 @@ public class LobbyPlayerService {
       this.visibilityService.refreshPlayer(player);
       this.doubleJumpService.refresh(player, this.shouldDoubleJump(player));
       this.updateDoubleJumpState(player);
+      this.cosmeticService.reapply(player);
    }
 
    // Feature actions
    public void sendLinks(Player player) {
-      if (!this.configService.isLinksEnabled()) {
+      if (!this.configService.get().links().enabled()) {
          this.sendFeatureDisabled(player, "links");
          return;
       }
 
-      this.sendClickableLink(player, "links.website", "Website: {link}", this.configService.getLink("website", "https://example.com"));
-      this.sendClickableLink(player, "links.discord", "Discord: {link}", this.configService.getLink("discord", "https://discord.gg/example"));
-      this.sendClickableLink(player, "links.store", "Store: {link}", this.configService.getLink("store", "https://store.example.com"));
+      this.sendClickableLink(player, "links.website", "Website: {link}", this.configService.get().links().get("website", "https://example.com"));
+      this.sendClickableLink(player, "links.discord", "Discord: {link}", this.configService.get().links().get("discord", "https://discord.gg/example"));
+      this.sendClickableLink(player, "links.store", "Store: {link}", this.configService.get().links().get("store", "https://store.example.com"));
    }
 
    public void togglePlayerHider(Player player) {
-      if (!this.configService.isHotbarHiderEnabled()) {
+      if (!this.configService.get().hotbar().isActionEnabled(HotbarAction.PLAYER_HIDER)) {
          this.sendFeatureDisabled(player, "player hider");
          return;
       }
@@ -107,12 +112,12 @@ public class LobbyPlayerService {
       this.visibilityService.applyVisibility(player, state);
       this.hotbarService.updatePlayerHiderItem(player);
 
-      Component chatMessage = switch(state) {
-      case ALL -> this.messageService.component("info.visibility.all", "<gradient:#7EE8FA:#5AA9FF>Players</gradient> <#E8E8E8>All visible");
-      case STAFF_ONLY -> this.messageService.component("info.visibility.ops", "<gradient:#7EE8FA:#5AA9FF>Players</gradient> <#E8E8E8>Staff only");
-      case HIDDEN -> this.messageService.component("info.visibility.hidden", "<gradient:#7EE8FA:#5AA9FF>Players</gradient> <#E8E8E8>All hidden");
+      Component chatMessage = switch (state) {
+         case ALL -> this.messageService.component("info.visibility.all", "<gradient:#7EE8FA:#5AA9FF>Players</gradient> <#E8E8E8>All visible");
+         case STAFF_ONLY -> this.messageService.component("info.visibility.ops", "<gradient:#7EE8FA:#5AA9FF>Players</gradient> <#E8E8E8>Staff only");
+         case HIDDEN -> this.messageService.component("info.visibility.hidden", "<gradient:#7EE8FA:#5AA9FF>Players</gradient> <#E8E8E8>All hidden");
       };
-      FeedbackChannel feedbackChannel = this.configService.getVisibilityFeedbackChannel();
+      FeedbackChannel feedbackChannel = this.configService.get().feedback().visibilityToggle();
       feedbackChannel.send(player, chatMessage);
    }
 
@@ -121,7 +126,7 @@ public class LobbyPlayerService {
    }
 
    public boolean teleportToSpawnIfSet(Player player, boolean sendFeedback, Runnable completion) {
-      if (!this.configService.isSpawnEnabled()) {
+      if (!this.configService.get().spawn().enabled()) {
          if (sendFeedback) {
             this.sendFeatureDisabled(player, "spawn");
          }
@@ -171,14 +176,14 @@ public class LobbyPlayerService {
          if (Boolean.TRUE.equals(success) && player.isOnline()) {
             player.getScheduler().execute(this.plugin, () -> {
                if (sendFeedback) {
-                  this.configService.getSpawnTeleportFeedbackChannel().send(
+                  this.configService.get().feedback().spawnTeleport().send(
                      player,
                      this.messageService.component("info.spawn-teleport", "<gradient:#7DFF9C:#B8FFCC>Lobby</gradient> <#D6D6D6>You were teleported to spawn."),
                      this.messageService.component("actionbar.spawn.teleport", "<gradient:#7DFF9C:#B8FFCC>Teleported to spawn")
                   );
                }
 
-               this.playSound(player, this.configService.getSoundTeleport(), this.configService.getSoundTeleportVolume(), this.configService.getSoundTeleportPitch());
+               this.playSound(player, this.configService.get().sounds().teleport());
                if (completion != null) {
                   completion.run();
                }
@@ -200,19 +205,19 @@ public class LobbyPlayerService {
 
    // Availability checks
    public boolean shouldProtect(Player player) {
-      return this.configService.isProtectionEnabled() && this.lobbyWorldService.isLobbyWorld(player);
+      return this.configService.get().protection().enabled() && this.lobbyWorldService.isLobbyWorld(player);
    }
 
    public boolean shouldHotbarLock(Player player) {
-      return this.configService.isHotbarEnabled() && this.configService.isHotbarLockEnabled() && this.lobbyWorldService.isLobbyWorld(player) && !this.isBuildMode(player);
+      return this.configService.get().hotbar().enabled() && this.configService.get().hotbar().lockItems() && this.lobbyWorldService.isLobbyWorld(player) && !this.isBuildMode(player);
    }
 
    public boolean shouldDoubleJump(Player player) {
-      if (!this.configService.isDoubleJumpEnabled() || !this.lobbyWorldService.isLobbyWorld(player)) {
+      if (!this.configService.get().doubleJump().enabled() || !this.lobbyWorldService.isLobbyWorld(player)) {
          return false;
       }
 
-      return !this.isBuildMode(player) || !this.configService.isBuildModeDisableDoubleJump();
+      return !this.isBuildMode(player) || !this.configService.get().buildMode().disableDoubleJump();
    }
 
    public boolean shouldBlockCreativePick(Player player) {
@@ -220,7 +225,7 @@ public class LobbyPlayerService {
    }
 
    public boolean isBuildMode(Player player) {
-      return this.configService.isBuildModeEnabled() && this.buildModeService.isEnabled(player);
+      return this.configService.get().buildMode().enabled() && this.buildModeService.isEnabled(player);
    }
 
    public ServerSelectorMenu getServerSelectorMenu() {
@@ -235,8 +240,8 @@ public class LobbyPlayerService {
       return this.doubleJumpService;
    }
 
-   public void playSound(Player player, Sound sound, float volume, float pitch) {
-      this.configService.playSound(player, sound, volume, pitch);
+   public void playSound(Player player, SoundEffect effect) {
+      this.configService.playSound(player, effect);
    }
 
    public void sendFeatureDisabled(Player player, String featureName) {
@@ -252,7 +257,7 @@ public class LobbyPlayerService {
 
    // Internal state sync
    private boolean shouldGiveHotbar(Player player) {
-      return this.configService.isHotbarEnabled() && this.lobbyWorldService.isLobbyWorld(player) && !this.isBuildMode(player);
+      return this.configService.get().hotbar().enabled() && this.lobbyWorldService.isLobbyWorld(player) && !this.isBuildMode(player);
    }
 
    private void updateHotbarState(Player player) {
@@ -263,13 +268,17 @@ public class LobbyPlayerService {
       }
    }
 
+   // Player#isOnGround() is client-reported and technically spoofable, but the actual double-jump
+   // consumption is still gated server-side by DoubleJumpService's cooldown, so the worst a spoofed
+   // value can do here is toggle flight-eligibility early - not bypass the cooldown itself.
+   @SuppressWarnings("deprecation")
    private void updateDoubleJumpState(Player player) {
       if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) {
          return;
       }
 
       if (this.isBuildMode(player) && this.lobbyWorldService.isLobbyWorld(player)) {
-         boolean allowFlight = this.configService.isBuildModeAllowFlight();
+         boolean allowFlight = this.configService.get().buildMode().allowFlight();
          if (player.getAllowFlight() != allowFlight) {
             player.setAllowFlight(allowFlight);
          }

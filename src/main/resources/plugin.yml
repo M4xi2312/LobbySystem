@@ -6,22 +6,6 @@ load: POSTWORLD
 description: Modern lobby plugin for Paper and Folia servers
 author: M4xi2312
 folia-supported: true
-commands:
-  spawn:
-    description: Teleport to spawn
-    usage: /spawn
-  setspawn:
-    description: Set spawn at your position
-    usage: /setspawn
-    permission: lobbysystem.set
-  build:
-    description: Toggle build mode in the lobby
-    usage: /build
-    permission: lobbysystem.build
-  lobbysystem:
-    description: LobbySystem admin commands
-    usage: /lobbysystem reload
-    permission: lobbysystem.reload
 permissions:
   lobbysystem.set:
     description: Allows setting spawn

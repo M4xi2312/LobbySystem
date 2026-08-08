@@ -16,7 +16,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class MessageService {
    private final LobbySystem plugin;
-   private FileConfiguration messages;
+   // Reassigned wholesale on reload() and read from arbitrary Folia region threads whenever a
+   // message is formatted, so it's held as a volatile reference rather than a plain field.
+   private volatile FileConfiguration messages;
    private File messagesFile;
    private final MiniMessage miniMessage = MiniMessage.miniMessage();
    private final LegacyComponentSerializer legacyAmpersand = LegacyComponentSerializer.legacyAmpersand();
@@ -67,7 +69,8 @@ public class MessageService {
    }
 
    public List<Component> componentList(String key, List<String> fallback) {
-      List<String> raw = this.messages.contains(key) ? this.messages.getStringList(key) : fallback;
+      FileConfiguration snapshot = this.messages;
+      List<String> raw = snapshot.contains(key) ? snapshot.getStringList(key) : fallback;
       return raw.stream().map(this::deserialize).collect(Collectors.toList());
    }
 
@@ -81,7 +84,8 @@ public class MessageService {
    }
 
    public List<Component> formatComponentList(String key, List<String> fallback, Map<String, String> vars) {
-      List<String> raw = this.messages.contains(key) ? this.messages.getStringList(key) : fallback;
+      FileConfiguration snapshot = this.messages;
+      List<String> raw = snapshot.contains(key) ? snapshot.getStringList(key) : fallback;
       return raw.stream().map((line) -> {
          return this.deserialize(this.replaceVars(line, vars));
       }).collect(Collectors.toList());
@@ -92,7 +96,7 @@ public class MessageService {
    }
 
    public String toLegacy(Component component) {
-      return this.legacySection.serialize((Component)(component == null ? Component.empty() : component));
+      return this.legacySection.serialize(component == null ? Component.empty() : component);
    }
 
    public List<String> toLegacyList(List<String> raw) {
@@ -125,10 +129,10 @@ public class MessageService {
                this.plugin.getLogger().warning("Invalid MiniMessage format: " + input);
                return Component.text(input);
             }
-         } else if (normalized.indexOf(167) >= 0) {
+         } else if (normalized.indexOf('§') >= 0) {
             return this.legacySection.deserialize(normalized);
          } else {
-            return normalized.indexOf(38) >= 0 ? this.legacyAmpersand.deserialize(normalized) : Component.text(normalized);
+            return normalized.indexOf('&') >= 0 ? this.legacyAmpersand.deserialize(normalized) : Component.text(normalized);
          }
       }
    }

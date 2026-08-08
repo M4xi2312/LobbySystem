@@ -5,25 +5,21 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public final class ItemFactory {
    private ItemFactory() {
    }
 
-   public static ItemStack createNamedItem(Material mat, Component display, List<Component> lore) {
-      ItemStack i = new ItemStack(mat);
-      ItemMeta m = i.getItemMeta();
-      if (m != null) {
-         m.displayName(nonItalic(display));
-         m.lore(lore.stream().map(ItemFactory::nonItalic).toList());
-         i.setItemMeta(m);
-      }
-
-      return i;
+   public static ItemStack createNamedItem(Material material, Component display, List<Component> lore) {
+      ItemStack item = new ItemStack(material);
+      item.editMeta((meta) -> {
+         meta.displayName(nonItalic(display));
+         meta.lore(lore.stream().map(ItemFactory::nonItalic).toList());
+      });
+      return item;
    }
 
-   private static Component nonItalic(Component component) {
-      return ((Component)(component == null ? Component.empty() : component)).decoration(TextDecoration.ITALIC, false);
+   public static Component nonItalic(Component component) {
+      return (component == null ? Component.empty() : component).decoration(TextDecoration.ITALIC, false);
    }
 }
