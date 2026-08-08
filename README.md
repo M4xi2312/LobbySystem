@@ -1,5 +1,12 @@
 # MLobbySystem
 
+[![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE.txt)
+[![Java](https://img.shields.io/badge/Java-21%2B-orange.svg)](https://adoptium.net/)
+[![Paper API](https://img.shields.io/badge/Paper-1.21.11%20%7C%2026.1.x%20%7C%2026.2-2c2c2c.svg)](https://papermc.io/)
+[![Folia](https://img.shields.io/badge/Folia-supported-brightgreen.svg)](https://github.com/PaperMC/Folia)
+[![GitHub last commit](https://img.shields.io/github/last-commit/M4xi2312/LobbySystem)](https://github.com/M4xi2312/LobbySystem/commits/master)
+[![GitHub issues](https://img.shields.io/github/issues/M4xi2312/LobbySystem)](https://github.com/M4xi2312/LobbySystem/issues)
+
 A modern, lightweight lobby system for Paper servers — built with performance and flexibility in mind.
 Designed for current server setups, including full support for Folia's regionized multithreading model.
 
@@ -8,16 +15,29 @@ Designed for current server setups, including full support for Folia's regionize
 * ⚡ **Folia Support** – Built to run safely and efficiently on Folia servers
 * 🧭 **Custom Spawn System** – Define and manage your lobby spawn with ease
 * 🎮 **Join Management** – Custom or silenced join/quit messages, teleport-on-join/respawn/void
-* 🧰 **Item-Based Actions** – Configure lobby items with custom actions (info, server selector, player hider)
+* 🧰 **Modular Hotbar Items** – Add, remove, or reskin as many hotbar items as you want, each with
+  its own action: show links, open the server selector, toggle player visibility, run a command,
+  open the cosmetics menu, or send a rich clickable chat message
+* 💬 **Clickable Chat Messages** – The `show-text` item action sends multi-line MiniMessage text with
+  per-line click behavior (open URL, run command, suggest command, copy to clipboard) and a
+  `{player}` placeholder
+* 🎩 **Cosmetics** – Hats, particle trails, and gadgets (firework burst, grappling hook, pearl bow),
+  each optionally permission-gated and persisted per player across restarts
 * 🖥️ **Server Selector Menu** – Paginated, MiniMessage-styled proxy server selector
 * 🚫 **Lobby Protection** – Disable damage, hunger, block breaking, and more
 * 🔄 **Auto Teleport** – Send players to spawn automatically on join, respawn, or void fall
+* 🔌 **Scriptable** – Every hotbar item use fires a cancellable `LobbyItemUseEvent`, so other plugins
+  or scripts (e.g. Skript) can react to or override item behavior
 * 🎛️ **Highly Configurable** – Simple config structure for fast setup and customization
 
 ## 🧩 Compatibility
 
-* ✅ Paper (1.21.11+)
-* ✅ Folia (fully supported)
+* ✅ Paper 1.21.11, 26.1.x, 26.2 (Java 21+ for the plugin; Paper itself needs Java 25 to run its 26.x builds)
+* ✅ Folia (same version range) - built against the shared Paper/Folia API, Folia builds exist for the
+  same versions
+
+The plugin is built once against the oldest supported API and verified by booting the same jar against
+real Paper 1.21.11, 26.1.2, and 26.2 servers - no separate builds per Minecraft version needed.
 
 ## 🚀 Why MLobbySystem?
 
@@ -38,6 +58,10 @@ compatible with next-generation platforms like Folia.
 
 All features are configurable via `config.yml` and `messages.yml`. Every message supports
 [MiniMessage](https://docs.advntr.dev/minimessage/format.html) formatting (gradients, hex colors, etc.).
+
+Hotbar items (`hotbar.items`) and cosmetics (`cosmetics.items`) are both free-form lists — add as many
+as you want, each keyed by a unique id you choose. Both files ship with commented examples covering
+every available action/kind.
 
 ## 🕹️ Commands
 

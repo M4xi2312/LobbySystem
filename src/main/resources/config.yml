@@ -1,6 +1,6 @@
 # =========================================================
 # LobbySystem Configuration
-# Paper 1.21.11 / Folia-ready lobby utilities
+# Paper 1.21.11 / 26.1.x / 26.2 / Folia-ready lobby utilities
 # All lobby mechanics only run in the configured lobby world.
 # MiniMessage is supported in messages.yml and server names/lore.
 # =========================================================
