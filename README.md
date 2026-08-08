@@ -2,7 +2,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE.txt)
 [![Java](https://img.shields.io/badge/Java-21%2B-orange.svg)](https://adoptium.net/)
-[![Paper API](https://img.shields.io/badge/Paper-1.21.11%20%7C%2026.1.x%20%7C%2026.2-2c2c2c.svg)](https://papermc.io/)
+[![Paper API](https://img.shields.io/badge/Paper-1.21.11%2B-2c2c2c.svg)](https://papermc.io/)
 [![Folia](https://img.shields.io/badge/Folia-supported-brightgreen.svg)](https://github.com/PaperMC/Folia)
 [![GitHub last commit](https://img.shields.io/github/last-commit/M4xi2312/LobbySystem)](https://github.com/M4xi2312/LobbySystem/commits/master)
 [![GitHub issues](https://img.shields.io/github/issues/M4xi2312/LobbySystem)](https://github.com/M4xi2312/LobbySystem/issues)
