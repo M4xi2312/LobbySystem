@@ -1,0 +1,5 @@
+enabled: true
+slot: 8
+material: PLAYER_HEAD
+action: player-hider
+# name/lore are generated dynamically from the current visibility state - see messages.yml "hotbar.hider".

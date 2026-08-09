@@ -1,0 +1,9 @@
+kind: particle
+enabled: true
+material: BLAZE_POWDER
+name: "<red>Flame Trail"
+lore:
+  - "<#6E6E6E>- <#E8E8E8>Leaves a trail of flames"
+particle: FLAME
+interval-ticks: 5
+permission: ""

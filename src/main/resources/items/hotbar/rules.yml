@@ -1,0 +1,23 @@
+enabled: true
+slot: 2
+material: WRITTEN_BOOK
+action: show-text
+name: "<gradient:#F5F7FA:#D7DDE8>Rules & Info"
+lore:
+  - "<#6E6E6E>- <#F5F7FA>Right-click to open"
+message:
+  - text: "<gray>Welcome, <white>{player}<gray>!"
+  - text: "<aqua>Click to open our website"
+    click: open-url
+    value: "https://example.com"
+    hover: "<gray>Opens in your browser"
+  - text: "<yellow>Click to copy our IP"
+    click: copy
+    value: "play.example.com"
+    hover: "<gray>Copies to your clipboard"
+  - text: "<green>Click to run /spawn"
+    click: run-command
+    value: "spawn"
+  - text: "<light_purple>Click to suggest a message"
+    click: suggest-command
+    value: "/msg "

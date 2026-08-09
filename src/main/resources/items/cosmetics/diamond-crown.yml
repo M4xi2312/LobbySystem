@@ -1,0 +1,7 @@
+kind: hat
+enabled: true
+material: DIAMOND_HELMET
+name: "<aqua>Diamond Crown"
+lore:
+  - "<#6E6E6E>- <#E8E8E8>For VIPs only"
+permission: "cosmetics.hat.diamond-crown"

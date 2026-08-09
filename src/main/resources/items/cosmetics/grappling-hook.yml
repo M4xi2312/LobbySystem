@@ -1,0 +1,13 @@
+kind: gadget
+enabled: true
+material: FISHING_ROD
+name: "<green>Grappling Hook"
+lore:
+  - "<#6E6E6E>- <#E8E8E8>Right-click to pull yourself forward"
+effect: grappling-hook
+cooldown-ticks: 60
+sound:
+  name: "minecraft:entity.arrow.shoot"
+  volume: 0.9
+  pitch: 1.3
+permission: ""

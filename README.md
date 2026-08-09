@@ -59,9 +59,10 @@ compatible with next-generation platforms like Folia.
 All features are configurable via `config.yml` and `messages.yml`. Every message supports
 [MiniMessage](https://docs.advntr.dev/minimessage/format.html) formatting (gradients, hex colors, etc.).
 
-Hotbar items (`hotbar.items`) and cosmetics (`cosmetics.items`) are both free-form lists — add as many
-as you want, each keyed by a unique id you choose. Both files ship with commented examples covering
-every available action/kind.
+Hotbar items and cosmetics aren't defined in `config.yml` — each one is its own file under
+`plugins/LobbySystem/items/hotbar/` or `plugins/LobbySystem/items/cosmetics/` (the filename becomes
+the item's id). Add a file to add an item, delete it to remove it. The default install ships example
+items covering every available action/kind, including a couple of disabled examples for reference.
 
 ## 🕹️ Commands
 

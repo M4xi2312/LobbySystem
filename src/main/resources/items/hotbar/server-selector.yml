@@ -1,0 +1,8 @@
+enabled: true
+slot: 4
+material: COMPASS
+action: server-selector
+name: "<gradient:#FFE082:#FFB347>Server Selector"
+lore:
+  - "<#6E6E6E>- <#E8E8E8>Choose where you want to play"
+  - "<#6E6E6E>- <#FFD166>Right-click to open"

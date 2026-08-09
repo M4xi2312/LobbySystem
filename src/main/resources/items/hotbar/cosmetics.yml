@@ -1,0 +1,8 @@
+enabled: true
+slot: 6
+material: JACK_O_LANTERN
+action: cosmetics-menu
+name: "<gradient:#B39DFF:#7EE8FA>Cosmetics"
+lore:
+  - "<#6E6E6E>- <#E8E8E8>Hats, particles & gadgets"
+  - "<#6E6E6E>- <#B39DFF>Right-click to open"

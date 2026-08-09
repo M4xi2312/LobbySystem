@@ -74,9 +74,10 @@ build-mode:
   reset-on-quit: true
 
 # Custom lobby items are only given in the lobby world while build mode is off.
-# Each item is a free-form entry: enabled/slot/material/action are required, name/lore are
-# MiniMessage strings. Add, remove, or reorder items freely - the id (map key) just has to be unique.
-# Available actions:
+# Item definitions themselves are NOT in this file - each item is its own file under
+# plugins/LobbySystem/items/hotbar/<id>.yml (the filename becomes the item's id). Add a file to add
+# an item, delete it to remove it. Every field is a free-form entry: enabled/slot/material/action
+# are required, name/lore are MiniMessage strings. Available actions:
 #   links            - shows the configured links (see the "links" section below)
 #   server-selector  - opens the server selector menu
 #   player-hider     - toggles player visibility (all / staff only / hidden)
@@ -90,86 +91,11 @@ build-mode:
 #   show-text        - sends the "message" lines below to chat. Each line is a MiniMessage string
 #                      with an optional click action (open-url, run-command, suggest-command, copy)
 #                      and hover text. {player} is replaced with the clicking player's name.
+# The default install ships example items in that folder covering every action above (including two
+# disabled examples, hub.yml and magic-wand.yml, for run-command/run-script).
 hotbar:
   enabled: true
   lock-items: true
-  items:
-    info:
-      enabled: true
-      slot: 0
-      material: BOOK
-      action: links
-      name: "<gradient:#F5F7FA:#D7DDE8>Lobby Info"
-      lore:
-        - "<#6E6E6E>- <#E8E8E8>View links and useful information"
-        - "<#6E6E6E>- <#F5F7FA>Right-click to open"
-    server-selector:
-      enabled: true
-      slot: 4
-      material: COMPASS
-      action: server-selector
-      name: "<gradient:#FFE082:#FFB347>Server Selector"
-      lore:
-        - "<#6E6E6E>- <#E8E8E8>Choose where you want to play"
-        - "<#6E6E6E>- <#FFD166>Right-click to open"
-    player-hider:
-      enabled: true
-      slot: 8
-      material: PLAYER_HEAD
-      action: player-hider
-      # name/lore are generated dynamically from the current visibility state - see messages.yml "hotbar.hider".
-    rules:
-      enabled: true
-      slot: 2
-      material: WRITTEN_BOOK
-      action: show-text
-      name: "<gradient:#F5F7FA:#D7DDE8>Rules & Info"
-      lore:
-        - "<#6E6E6E>- <#F5F7FA>Right-click to open"
-      message:
-        - text: "<gray>Welcome, <white>{player}<gray>!"
-        - text: "<aqua>Click to open our website"
-          click: open-url
-          value: "https://example.com"
-          hover: "<gray>Opens in your browser"
-        - text: "<yellow>Click to copy our IP"
-          click: copy
-          value: "play.example.com"
-          hover: "<gray>Copies to your clipboard"
-        - text: "<green>Click to run /spawn"
-          click: run-command
-          value: "spawn"
-        - text: "<light_purple>Click to suggest a message"
-          click: suggest-command
-          value: "/msg "
-    cosmetics:
-      enabled: true
-      slot: 6
-      material: JACK_O_LANTERN
-      action: cosmetics-menu
-      name: "<gradient:#B39DFF:#7EE8FA>Cosmetics"
-      lore:
-        - "<#6E6E6E>- <#E8E8E8>Hats, particles & gadgets"
-        - "<#6E6E6E>- <#B39DFF>Right-click to open"
-    # Example of a fully custom item using the generic run-command action - disabled by default:
-    # hub:
-    #   enabled: false
-    #   slot: 2
-    #   material: NETHER_STAR
-    #   action: run-command
-    #   value: spawn
-    #   name: "<gold>Hub"
-    #   lore: []
-    # Example of an item whose behavior is entirely defined by a script listening to
-    # LobbyItemUseEvent - "value" is just a free-form tag your script can check:
-    # magic-wand:
-    #   enabled: false
-    #   slot: 3
-    #   material: BLAZE_ROD
-    #   action: run-script
-    #   value: magic-wand-trigger
-    #   name: "<light_purple>Magic Wand"
-    #   lore: []
 
 # Server selector menu and backend destinations.
 server-selector:
@@ -254,94 +180,18 @@ sounds:
       pitch: 0.95
 
 # Cosmetics menu: hats (worn on the head), particle trails, and gadgets (usable toy items).
-# Selections persist per player across restarts. An empty/missing "permission" means unlocked for
-# everyone. Kinds:
+# Selections persist per player across restarts. Item definitions are NOT in this file - each
+# cosmetic is its own file under plugins/LobbySystem/items/cosmetics/<id>.yml (the filename becomes
+# the item's id). Add a file to add a cosmetic, delete it to remove it. An empty/missing
+# "permission" means unlocked for everyone. Kinds:
 #   hat       - toggled on/off from the menu, worn in the helmet slot
 #   particle  - toggled on/off from the menu, ticks a "particle" effect at the player's feet every
 #               "interval-ticks" while they're in the lobby world
 #   gadget    - clicking it in the menu gives the item; right-clicking the item triggers "effect"
 #               (firework / grappling-hook / pearl-bow) + the optional "sound", then starts a
 #               "cooldown-ticks" cooldown
+# The default install ships example items in that folder covering every kind/effect above.
 cosmetics:
   enabled: true
   menu:
     size: 54
-  items:
-    party-hat:
-      kind: hat
-      enabled: true
-      material: JACK_O_LANTERN
-      name: "<gold>Party Hat"
-      lore:
-        - "<#6E6E6E>- <#E8E8E8>A festive head accessory"
-      permission: ""
-    diamond-crown:
-      kind: hat
-      enabled: true
-      material: DIAMOND_HELMET
-      name: "<aqua>Diamond Crown"
-      lore:
-        - "<#6E6E6E>- <#E8E8E8>For VIPs only"
-      permission: "cosmetics.hat.diamond-crown"
-    flame-trail:
-      kind: particle
-      enabled: true
-      material: BLAZE_POWDER
-      name: "<red>Flame Trail"
-      lore:
-        - "<#6E6E6E>- <#E8E8E8>Leaves a trail of flames"
-      particle: FLAME
-      interval-ticks: 5
-      permission: ""
-    heart-trail:
-      kind: particle
-      enabled: true
-      material: POPPY
-      name: "<light_purple>Heart Trail"
-      lore:
-        - "<#6E6E6E>- <#E8E8E8>Leaves a trail of hearts"
-      particle: HEART
-      interval-ticks: 8
-      permission: ""
-    firework-launcher:
-      kind: gadget
-      enabled: true
-      material: FIREWORK_ROCKET
-      name: "<yellow>Firework Launcher"
-      lore:
-        - "<#6E6E6E>- <#E8E8E8>Right-click to launch fireworks"
-      effect: firework
-      cooldown-ticks: 100
-      sound:
-        name: "minecraft:entity.firework_rocket.blast"
-        volume: 1.0
-        pitch: 1.0
-      permission: ""
-    grappling-hook:
-      kind: gadget
-      enabled: true
-      material: FISHING_ROD
-      name: "<green>Grappling Hook"
-      lore:
-        - "<#6E6E6E>- <#E8E8E8>Right-click to pull yourself forward"
-      effect: grappling-hook
-      cooldown-ticks: 60
-      sound:
-        name: "minecraft:entity.arrow.shoot"
-        volume: 0.9
-        pitch: 1.3
-      permission: ""
-    pearl-bow:
-      kind: gadget
-      enabled: true
-      material: BOW
-      name: "<light_purple>Pearl Bow"
-      lore:
-        - "<#6E6E6E>- <#E8E8E8>Right-click to launch yourself with an ender pearl"
-      effect: pearl-bow
-      cooldown-ticks: 60
-      sound:
-        name: "minecraft:entity.enderman.teleport"
-        volume: 0.9
-        pitch: 1.1
-      permission: ""

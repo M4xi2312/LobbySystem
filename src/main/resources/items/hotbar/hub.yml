@@ -1,0 +1,8 @@
+# Example of a fully custom item using the generic run-command action - disabled by default.
+enabled: false
+slot: 2
+material: NETHER_STAR
+action: run-command
+value: spawn
+name: "<gold>Hub"
+lore: []

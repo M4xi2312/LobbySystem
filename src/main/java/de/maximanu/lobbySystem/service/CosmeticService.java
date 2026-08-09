@@ -157,6 +157,9 @@ public class CosmeticService {
    private boolean applyHat(Player player, String hatId) {
       ItemStack currentHelmet = player.getInventory().getHelmet();
       boolean currentIsOurs = this.isTaggedHat(currentHelmet);
+      // getHelmet() returns an empty (AIR) ItemStack rather than null when nothing is worn, so an
+      // untagged-but-empty stack must not be treated as "a real helmet is already worn".
+      boolean helmetSlotOccupied = currentHelmet != null && !currentHelmet.getType().isAir() && !currentIsOurs;
 
       Optional<CosmeticConfig> cosmetic = hatId == null ? Optional.empty() : this.find(hatId, CosmeticKind.HAT);
       boolean valid = cosmetic.isPresent() && cosmetic.get().enabled() && cosmetic.get().isUnlockedFor(player);
@@ -169,7 +172,7 @@ public class CosmeticService {
          return true;
       }
 
-      if (currentHelmet != null && !currentIsOurs) {
+      if (helmetSlotOccupied) {
          return false;
       }
 

@@ -1,0 +1,9 @@
+kind: particle
+enabled: true
+material: POPPY
+name: "<light_purple>Heart Trail"
+lore:
+  - "<#6E6E6E>- <#E8E8E8>Leaves a trail of hearts"
+particle: HEART
+interval-ticks: 8
+permission: ""

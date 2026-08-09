@@ -1,0 +1,7 @@
+kind: hat
+enabled: true
+material: JACK_O_LANTERN
+name: "<gold>Party Hat"
+lore:
+  - "<#6E6E6E>- <#E8E8E8>A festive head accessory"
+permission: ""

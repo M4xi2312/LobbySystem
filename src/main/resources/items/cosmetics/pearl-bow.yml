@@ -1,0 +1,13 @@
+kind: gadget
+enabled: true
+material: BOW
+name: "<light_purple>Pearl Bow"
+lore:
+  - "<#6E6E6E>- <#E8E8E8>Right-click to launch yourself with an ender pearl"
+effect: pearl-bow
+cooldown-ticks: 60
+sound:
+  name: "minecraft:entity.enderman.teleport"
+  volume: 0.9
+  pitch: 1.1
+permission: ""

@@ -2,7 +2,9 @@ package de.maximanu.lobbySystem.config;
 
 import de.maximanu.lobbySystem.LobbySystem;
 import de.maximanu.lobbySystem.service.MessageService;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +18,7 @@ import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 public class ConfigService {
@@ -94,7 +97,7 @@ public class ConfigService {
          source.getBoolean("build-mode.reset-on-quit", true)
       );
 
-      List<HotbarItemConfig> hotbarItems = this.readHotbarItems(source);
+      List<HotbarItemConfig> hotbarItems = this.readHotbarItems(source, "items/hotbar");
       this.warnDuplicateHotbarSlots(hotbarItems);
       HotbarConfig hotbar = new HotbarConfig(source.getBoolean("hotbar.enabled", true), source.getBoolean("hotbar.lock-items", true), hotbarItems);
 
@@ -155,44 +158,41 @@ public class ConfigService {
       CosmeticsConfig cosmetics = new CosmeticsConfig(
          source.getBoolean("cosmetics.enabled", true),
          this.normalizeMenuSize(source.getInt("cosmetics.menu.size", 54)),
-         this.readCosmetics(source)
+         this.readCosmetics("items/cosmetics")
       );
 
       this.config = new PluginConfig(lobbyWorldName, spawnWorldName, spawn, protection, doubleJump, buildMode, hotbar, selector, feedback, sounds, links, join, cosmetics);
    }
 
-   private List<CosmeticConfig> readCosmetics(FileConfiguration source) {
-      ConfigurationSection section = source.getConfigurationSection("cosmetics.items");
+   private List<CosmeticConfig> readCosmetics(String relativeFolder) {
       List<CosmeticConfig> cosmetics = new ArrayList<>();
-      if (section == null) {
-         return List.of();
-      }
-
-      for (String id : section.getKeys(false)) {
-         ConfigurationSection item = section.getConfigurationSection(id);
-         if (item == null) {
-            continue;
+      for (Map.Entry<String, FileConfiguration> entry : this.loadItemFiles(relativeFolder)) {
+         CosmeticConfig cosmetic = this.parseCosmeticItem(entry.getKey(), entry.getValue());
+         if (cosmetic != null) {
+            cosmetics.add(cosmetic);
          }
-
-         CosmeticKind kind = CosmeticKind.fromConfig(item.getString("kind"), id, this.plugin.getLogger());
-         if (kind == null) {
-            continue;
-         }
-
-         boolean enabled = item.getBoolean("enabled", true);
-         Material material = this.materialOrDefault(item.getString("material"), Material.PAPER);
-         Component name = this.messageService.deserialize(item.getString("name", id));
-         List<Component> lore = item.getStringList("lore").stream().map(this.messageService::deserialize).toList();
-         String permission = item.getString("permission", "").trim();
-         Particle particle = kind == CosmeticKind.PARTICLE ? this.particleOrNull(item.getString("particle"), id) : null;
-         int particleIntervalTicks = Math.max(1, item.getInt("interval-ticks", 5));
-         GadgetEffect gadgetEffect = kind == CosmeticKind.GADGET ? GadgetEffect.fromConfig(item.getString("effect"), id, this.plugin.getLogger()) : null;
-         int gadgetCooldownTicks = Math.max(0, item.getInt("cooldown-ticks", 100));
-         SoundEffect gadgetSound = kind == CosmeticKind.GADGET ? this.readSoundEffect(item, "sound", 1.0F, 1.0F) : null;
-         cosmetics.add(new CosmeticConfig(id, kind, enabled, material, name, lore, permission, particle, particleIntervalTicks, gadgetEffect, gadgetCooldownTicks, gadgetSound));
       }
 
       return List.copyOf(cosmetics);
+   }
+
+   private CosmeticConfig parseCosmeticItem(String id, ConfigurationSection item) {
+      CosmeticKind kind = CosmeticKind.fromConfig(item.getString("kind"), id, this.plugin.getLogger());
+      if (kind == null) {
+         return null;
+      }
+
+      boolean enabled = item.getBoolean("enabled", true);
+      Material material = this.materialOrDefault(item.getString("material"), Material.PAPER);
+      Component name = this.messageService.deserialize(item.getString("name", id));
+      List<Component> lore = item.getStringList("lore").stream().map(this.messageService::deserialize).toList();
+      String permission = item.getString("permission", "").trim();
+      Particle particle = kind == CosmeticKind.PARTICLE ? this.particleOrNull(item.getString("particle"), id) : null;
+      int particleIntervalTicks = Math.max(1, item.getInt("interval-ticks", 5));
+      GadgetEffect gadgetEffect = kind == CosmeticKind.GADGET ? GadgetEffect.fromConfig(item.getString("effect"), id, this.plugin.getLogger()) : null;
+      int gadgetCooldownTicks = Math.max(0, item.getInt("cooldown-ticks", 100));
+      SoundEffect gadgetSound = kind == CosmeticKind.GADGET ? this.readSoundEffect(item, "sound", 1.0F, 1.0F) : null;
+      return new CosmeticConfig(id, kind, enabled, material, name, lore, permission, particle, particleIntervalTicks, gadgetEffect, gadgetCooldownTicks, gadgetSound);
    }
 
    private Particle particleOrNull(String name, String itemId) {
@@ -209,41 +209,56 @@ public class ConfigService {
       }
    }
 
-   private List<HotbarItemConfig> readHotbarItems(FileConfiguration source) {
-      ConfigurationSection section = source.getConfigurationSection("hotbar.items");
+   private List<HotbarItemConfig> readHotbarItems(FileConfiguration source, String relativeFolder) {
       List<HotbarItemConfig> items = new ArrayList<>();
-      if (section == null) {
-         return List.of();
-      }
-
-      for (String id : section.getKeys(false)) {
-         ConfigurationSection item = section.getConfigurationSection(id);
-         if (item == null) {
-            continue;
+      for (Map.Entry<String, FileConfiguration> entry : this.loadItemFiles(relativeFolder)) {
+         HotbarItemConfig item = this.parseHotbarItem(entry.getKey(), entry.getValue(), source);
+         if (item != null) {
+            items.add(item);
          }
-
-         HotbarAction action = HotbarAction.fromConfig(item.getString("action"), id, this.plugin.getLogger());
-         if (action == null) {
-            continue;
-         }
-
-         boolean enabled = item.getBoolean("enabled", true);
-         if (action == HotbarAction.LINKS) {
-            enabled = enabled && source.getBoolean("links.enabled", true);
-         } else if (action == HotbarAction.SERVER_SELECTOR) {
-            enabled = enabled && source.getBoolean("server-selector.enabled", true);
-         }
-
-         int slot = this.normalizeHotbarSlot(item, "slot", id);
-         Material material = this.materialOrDefault(item.getString("material"), Material.PAPER);
-         Component name = this.messageService.deserialize(item.getString("name", id));
-         List<Component> lore = item.getStringList("lore").stream().map(this.messageService::deserialize).toList();
-         String value = item.getString("value", "");
-         List<ChatLineConfig> message = action == HotbarAction.SHOW_TEXT ? this.readChatLines(item.getMapList("message"), id) : List.of();
-         items.add(new HotbarItemConfig(id, enabled, slot, material, name, lore, action, value, message));
       }
 
       return List.copyOf(items);
+   }
+
+   private HotbarItemConfig parseHotbarItem(String id, ConfigurationSection item, FileConfiguration source) {
+      HotbarAction action = HotbarAction.fromConfig(item.getString("action"), id, this.plugin.getLogger());
+      if (action == null) {
+         return null;
+      }
+
+      boolean enabled = item.getBoolean("enabled", true);
+      if (action == HotbarAction.LINKS) {
+         enabled = enabled && source.getBoolean("links.enabled", true);
+      } else if (action == HotbarAction.SERVER_SELECTOR) {
+         enabled = enabled && source.getBoolean("server-selector.enabled", true);
+      }
+
+      int slot = this.normalizeHotbarSlot(item, "slot", id);
+      Material material = this.materialOrDefault(item.getString("material"), Material.PAPER);
+      Component name = this.messageService.deserialize(item.getString("name", id));
+      List<Component> lore = item.getStringList("lore").stream().map(this.messageService::deserialize).toList();
+      String value = item.getString("value", "");
+      List<ChatLineConfig> message = action == HotbarAction.SHOW_TEXT ? this.readChatLines(item.getMapList("message"), id) : List.of();
+      return new HotbarItemConfig(id, enabled, slot, material, name, lore, action, value, message);
+   }
+
+   /** Loads every {@code *.yml} file directly inside the plugin data folder's {@code relativeFolder} - the filename (without extension) becomes the item's id. */
+   private List<Map.Entry<String, FileConfiguration>> loadItemFiles(String relativeFolder) {
+      File folder = new File(this.plugin.getDataFolder(), relativeFolder);
+      File[] files = folder.listFiles((dir, name) -> name.toLowerCase(Locale.ROOT).endsWith(".yml"));
+      if (files == null || files.length == 0) {
+         return List.of();
+      }
+
+      Arrays.sort(files, Comparator.comparing(File::getName));
+      List<Map.Entry<String, FileConfiguration>> result = new ArrayList<>();
+      for (File file : files) {
+         String id = file.getName().substring(0, file.getName().length() - ".yml".length());
+         result.add(Map.entry(id, YamlConfiguration.loadConfiguration(file)));
+      }
+
+      return result;
    }
 
    private List<ChatLineConfig> readChatLines(List<Map<?, ?>> rawLines, String itemId) {

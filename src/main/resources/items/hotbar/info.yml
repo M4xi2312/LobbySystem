@@ -1,0 +1,8 @@
+enabled: true
+slot: 0
+material: BOOK
+action: links
+name: "<gradient:#F5F7FA:#D7DDE8>Lobby Info"
+lore:
+  - "<#6E6E6E>- <#E8E8E8>View links and useful information"
+  - "<#6E6E6E>- <#F5F7FA>Right-click to open"

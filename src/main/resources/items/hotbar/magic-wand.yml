@@ -1,0 +1,9 @@
+# Example of an item whose behavior is entirely defined by a script listening to
+# LobbyItemUseEvent - "value" is just a free-form tag your script can check. Disabled by default.
+enabled: false
+slot: 3
+material: BLAZE_ROD
+action: run-script
+value: magic-wand-trigger
+name: "<light_purple>Magic Wand"
+lore: []

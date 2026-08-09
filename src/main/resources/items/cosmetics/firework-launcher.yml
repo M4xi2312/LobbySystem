@@ -1,0 +1,13 @@
+kind: gadget
+enabled: true
+material: FIREWORK_ROCKET
+name: "<yellow>Firework Launcher"
+lore:
+  - "<#6E6E6E>- <#E8E8E8>Right-click to launch fireworks"
+effect: firework
+cooldown-ticks: 100
+sound:
+  name: "minecraft:entity.firework_rocket.blast"
+  volume: 1.0
+  pitch: 1.0
+permission: ""

@@ -22,10 +22,18 @@ import de.maximanu.lobbySystem.service.PlayerStateService;
 import de.maximanu.lobbySystem.service.SpawnService;
 import de.maximanu.lobbySystem.service.VisibilityService;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import java.io.File;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class LobbySystem extends JavaPlugin {
+   // Copied into items/hotbar/ and items/cosmetics/ the first time the plugin runs (i.e. only if
+   // those folders don't exist yet) - deleting a file removes that item permanently, reloads never
+   // recreate it. See ConfigService, which scans these folders instead of reading items from config.yml.
+   private static final List<String> DEFAULT_HOTBAR_ITEMS = List.of("info", "server-selector", "player-hider", "rules", "cosmetics", "hub", "magic-wand");
+   private static final List<String> DEFAULT_COSMETICS = List.of("party-hat", "diamond-crown", "flame-trail", "heart-trail", "firework-launcher", "grappling-hook", "pearl-bow");
+
    private MessageService messageService;
    private ConfigService configService;
    private HotbarService hotbarService;
@@ -46,6 +54,7 @@ public final class LobbySystem extends JavaPlugin {
       this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
       this.saveDefaultConfig();
       this.reloadConfig();
+      this.extractDefaultItemsIfMissing();
 
       // Core service wiring
       this.messageService = new MessageService(this);
@@ -97,6 +106,21 @@ public final class LobbySystem extends JavaPlugin {
       this.serverSelectorMenu.reloadMessages();
       this.cosmeticsMenu.reloadMessages();
       this.lobbyEnvironmentService.reload();
+   }
+
+   private void extractDefaultItemsIfMissing() {
+      this.extractDefaultItemsIfMissing("items/hotbar", DEFAULT_HOTBAR_ITEMS);
+      this.extractDefaultItemsIfMissing("items/cosmetics", DEFAULT_COSMETICS);
+   }
+
+   private void extractDefaultItemsIfMissing(String relativeFolder, List<String> ids) {
+      if (new File(this.getDataFolder(), relativeFolder).exists()) {
+         return;
+      }
+
+      for (String id : ids) {
+         this.saveResource(relativeFolder + "/" + id + ".yml", false);
+      }
    }
 
    private void reloadStartupStateDelayed() {
